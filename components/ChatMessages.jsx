@@ -1,7 +1,8 @@
 // components/ChatMessages.js
 import React from "react";
-import { User, Bot, Copy, Share2 } from "lucide-react";
+import { User, Bot, Copy, Share2, ThumbsUp, ThumbsDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function ChatMessages({
   messages,
@@ -9,9 +10,11 @@ export default function ChatMessages({
   settings,
   formatTimestamp,
   copyToClipboard,
+  isTyping, // New prop for typing indicator
 }) {
   return (
-    <div className="flex-1 overflow-y-auto scroll-smooth" >
+    <div className="flex-1 overflow-y-auto scroll-smooth">
+      <ToastContainer/>
       {messages.length === 0 ? (
         <div className="h-full flex items-center justify-center">
           <div className="text-center space-y-4 px-4">
@@ -94,6 +97,38 @@ export default function ChatMessages({
                       msg.text
                     )}
                   </div>
+                  {msg.sender === "ai" && (
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        onClick={() => {
+                          // Handle positive feedback
+                          toast.success("Thanks for your feedback!");
+                        }}
+                        className={`p-1 rounded-md text-sm flex items-center gap-1 ${
+                          isDarkMode
+                            ? "text-white/60 hover:bg-white/10"
+                            : "text-gray-500 hover:bg-gray-100"
+                        }`}
+                      >
+                        <ThumbsUp size={14} />
+                        Like
+                      </button>
+                      <button
+                        onClick={() => {
+                          // Handle negative feedback
+                          toast("Feedback noted", { icon: "👎" });
+                        }}
+                        className={`p-1 rounded-md text-sm flex items-center gap-1 ${
+                          isDarkMode
+                            ? "text-white/60 hover:bg-white/10"
+                            : "text-gray-500 hover:bg-gray-100"
+                        }`}
+                      >
+                        <ThumbsDown size={14} />
+                        Dislike
+                      </button>
+                    </div>
+                  )}
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => copyToClipboard(msg.text)}
@@ -133,6 +168,28 @@ export default function ChatMessages({
               </div>
             </div>
           ))}
+
+          {/* Typing Indicator */}
+          {isTyping && (
+            <div className="border-b">
+              <div className="max-w-3xl mx-auto flex p-6 gap-4">
+                <div className="w-8 h-8 flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[#11A37F] flex items-center justify-center">
+                    <Bot size={20} className="text-white" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <span
+                    className={`text-sm ${
+                      isDarkMode ? "text-white/60" : "text-gray-500"
+                    }`}
+                  >
+                    Assistant is typing...
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

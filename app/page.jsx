@@ -11,12 +11,14 @@ import ChatHeader from "../components/ChatHeader";
 import ChatMessages from "../components/ChatMessages";
 import ChatInput from "../components/ChatInput";
 import SettingsModal from "../components/SettingsModal";
+import AdvancedToolsModal from "../components/AdvancedToolsModal";
 
 export default function Home() {
   // Shared state
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false); // For typing indicator
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -29,7 +31,12 @@ export default function Home() {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  
+
+  // NEW: Advanced Tools Modal state
+  const [showAdvancedTools, setShowAdvancedTools] = useState(false);
+  const [summaryResult, setSummaryResult] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
   const chatContainerRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -63,7 +70,7 @@ export default function Home() {
     }
   }, [input]);
 
-  // Functions for conversation management
+  // Conversation management functions
   const createNewConversation = () => {
     const newConversation = {
       id: Date.now(),
@@ -129,6 +136,7 @@ export default function Home() {
     const lastUserMessage = messages.findLast((msg) => msg.sender === "user");
     if (lastUserMessage) {
       setIsLoading(true);
+      setIsTyping(true);
       try {
         const { data } = await axios.post("/api/chat", { 
           message: lastUserMessage.text,
@@ -157,6 +165,7 @@ export default function Home() {
         toast.error("Failed to regenerate response");
       } finally {
         setIsLoading(false);
+        setIsTyping(false);
       }
     }
   };
@@ -174,6 +183,7 @@ export default function Home() {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
 
+    setIsTyping(true);
     try {
       const { data } = await axios.post("/api/chat", { 
         message: currentMessage,
@@ -186,7 +196,6 @@ export default function Home() {
       };
       setMessages((prev) => [...prev, aiMessage]);
       
-      // Update conversation title if this is the first message
       if (messages.length === 0 && currentConversation) {
         const updatedConversation = {
           ...currentConversation,
@@ -210,6 +219,7 @@ export default function Home() {
       toast.error("Failed to send message");
     } finally {
       setIsLoading(false);
+      setIsTyping(false);
     }
   };
 
@@ -228,6 +238,28 @@ export default function Home() {
   const formatTimestamp = (timestamp) =>
     new Date(timestamp).toLocaleTimeString();
 
+  // NEW: Summarize conversation using Google Gemini
+  const summarizeConversation = async () => {
+    try {
+      const { data } = await axios.post("/api/summarize", { messages });
+      setSummaryResult(data.summary);
+      toast.success("Conversation summarized!");
+    } catch (error) {
+      toast.error("Failed to summarize conversation");
+    }
+  };
+
+  // NEW: Search conversation using DeepSeek-like semantic search
+  const searchConversation = async (query) => {
+    try {
+      const { data } = await axios.post("/api/search", { query, messages });
+      setSearchResults(data.results);
+      toast.success("Search completed!");
+    } catch (error) {
+      toast.error("Failed to search conversation");
+    }
+  };
+
   return (
     <>
       <Head>
@@ -243,7 +275,6 @@ export default function Home() {
           isDarkMode ? "bg-[#343541]" : "bg-gray-50"
         }`}
       >
-        {/* Sidebar */}
         <Sidebar
           isDarkMode={isDarkMode}
           toggleTheme={toggleTheme}
@@ -259,9 +290,14 @@ export default function Home() {
           setShowSettings={setShowSettings}
           isMobileSidebarOpen={isMobileSidebarOpen}
           setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+          renameConversation={(id, newTitle) => {
+            const updatedConversations = conversations.map((conv) =>
+              conv.id === id ? { ...conv, title: newTitle } : conv
+            );
+            setConversations(updatedConversations);
+          }}
         />
 
-        {/* Main Chat Area */}
         <main
           className={`flex-1 flex flex-col relative ${
             isDarkMode ? "bg-[#343541]" : "bg-white"
@@ -273,6 +309,8 @@ export default function Home() {
             exportConversation={exportConversation}
             regenerateResponse={regenerateResponse}
             settings={settings}
+            // NEW: Open advanced tools modal when clicking the new button
+            openAdvancedTools={() => setShowAdvancedTools(true)}
           />
 
           <ChatMessages
@@ -281,6 +319,7 @@ export default function Home() {
             settings={settings}
             formatTimestamp={formatTimestamp}
             copyToClipboard={copyToClipboard}
+            isTyping={isTyping}
           />
 
           {showSettings && (
@@ -289,6 +328,17 @@ export default function Home() {
               setSettings={setSettings}
               isDarkMode={isDarkMode}
               setShowSettings={setShowSettings}
+            />
+          )}
+
+          {showAdvancedTools && (
+            <AdvancedToolsModal
+              isDarkMode={isDarkMode}
+              setShowAdvancedTools={setShowAdvancedTools}
+              summarizeConversation={summarizeConversation}
+              summaryResult={summaryResult}
+              searchConversation={searchConversation}
+              searchResults={searchResults}
             />
           )}
 

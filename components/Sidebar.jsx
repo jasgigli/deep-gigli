@@ -1,5 +1,5 @@
 // components/Sidebar.js
-import React from "react";
+import React, { useState } from "react";
 import { Plus, Trash2, Settings, Sun, Moon } from "lucide-react";
 
 export default function Sidebar({
@@ -13,7 +13,17 @@ export default function Sidebar({
   setShowSettings,
   isMobileSidebarOpen,
   setIsMobileSidebarOpen,
+  renameConversation, // New prop for renaming
 }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [newTitle, setNewTitle] = useState("");
+
+  // Filter conversations based on search query
+  const filteredConversations = conversations.filter((conv) =>
+    conv.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <aside
       className={`
@@ -46,8 +56,23 @@ export default function Sidebar({
         </button>
       </div>
 
+      {/* Conversation Search */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search conversations..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={`w-full p-2 rounded-md ${
+            isDarkMode
+              ? "bg-[#343541] text-white border-white/20"
+              : "bg-white text-gray-900 border-gray-300"
+          }`}
+        />
+      </div>
+
       <div className="flex-1 overflow-y-auto space-y-2">
-        {conversations.map((conv) => (
+        {filteredConversations.map((conv) => (
           <div
             key={conv.id}
             className={`group flex items-center justify-between p-2 rounded-md cursor-pointer ${
@@ -59,15 +84,45 @@ export default function Sidebar({
                 ? "hover:bg-white/5"
                 : "hover:bg-gray-50"
             }`}
-            onClick={() => setCurrentConversation(conv)}
+            onClick={() => {
+              setEditingId(null);
+              setCurrentConversation(conv);
+            }}
+            onDoubleClick={() => {
+              setEditingId(conv.id);
+              setNewTitle(conv.title);
+            }}
           >
-            <span
-              className={`flex-1 truncate ${
-                isDarkMode ? "text-white/90" : "text-gray-700"
-              }`}
-            >
-              {conv.title}
-            </span>
+            {editingId === conv.id ? (
+              <input
+                type="text"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onBlur={() => {
+                  renameConversation(conv.id, newTitle);
+                  setEditingId(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    renameConversation(conv.id, newTitle);
+                    setEditingId(null);
+                  }
+                }}
+                className={`flex-1 bg-transparent border-b outline-none ${
+                  isDarkMode ? "text-white" : "text-gray-700"
+                }`}
+                autoFocus
+              />
+            ) : (
+              <span
+                className={`flex-1 truncate ${
+                  isDarkMode ? "text-white/90" : "text-gray-700"
+                }`}
+              >
+                {conv.title}
+              </span>
+            )}
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
