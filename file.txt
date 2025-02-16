@@ -1,26 +1,73 @@
 jasgigli-ai/
-├── api/
+├── app/
+│   ├── layout.js         
+│   ├── page.js          
 │   ├── chat/
-│   │   └── route.js       // API endpoint for chat
+│   │   ├── components/
+│   │   │   ├── ChatInput.jsx
+│   │   │   ├── ChatInputToolbar.jsx
+│   │   │   ├── ChatMessages.jsx
+│   │   │   └── ChatPanel.jsx
+│   │   └── page.js       
 │   ├── summarize/
-│   │   └── route.js      // API endpoint for summarization
+│   │   ├── components/
+│   │   │   └── SummarizePanel.jsx
+│   │   └── page.js       
 │   ├── translate/
-│   │   └── route.js      // API endpoint for translation
+│   │   ├── components/
+│   │   │   └── TranslatePanel.jsx
+│   │   └── page.js      
+│   ├── settings/
+│   │   └── page.js       
+│   ├── api/
+│   │   ├── chat/
+│   │   │   └── route.js
+│   │   ├── summarize/
+│   │   │   └── route.js
+│   │   └── translate/
+│   │   │   └── route.js
+│   ├── auth/              
+│   │   ├── login/
+│   │   │   └── page.js
+│   │   └── signup/
+│   │       └── page.js
+│   ├── lib/                
+│   │   ├── api/           
+│   │   │   └── apiClient.js
+│   │   ├── utils/         
+│   │   │   └── helpers.js
+│   │   └── constants/     
+│   │       └── index.js
+│   ├── loading.js
+│   └── styles/
+│       └── layout.css       
 ├── components/
-│   ├── ui/               // Reusable UI components
-│   │   └── Dropdown.jsx
-│   ├── layouts/          // Layout components
-│   │   ├── Sidebar.jsx
-│   │   ├── ChatHeader.jsx
-│   ├── panels/           // Tool-specific panels
-│   │   ├── ChatPanel.jsx
-│   │   ├── SummarizePanel.jsx
-│   │   ├── TranslatePanel.jsx
-│   ├── ChatMessages.jsx
-│   ├── ChatInput.jsx
-│   ├── SettingsModal.jsx
-│   ├── ToolSelector.jsx
-│   ├── VoiceInputOutput.jsx
-└── globals.css         // Global CSS styles
-├── loading.js          // Loading component
-└── page.js             // Home page - main application container
+│   ├── ui/
+│   │   ├── Button.jsx
+│   │   ├── Dropdown.jsx
+│   │   └── Input.jsx
+│   ├── layouts/
+│   │   ├── Header.jsx
+│   │   └── Sidebar.jsx
+│   ├── common/
+│   │   ├── AuthModal.jsx
+│   │   ├── SettingsModal.jsx
+│   │   ├── ToolSelector.jsx
+│   │   └── VoiceInputOutput.jsx
+├── styles/
+│   ├── critical.css
+│   ├── css-variables.css
+│   └── globals.css
+├── public/
+│   ├── images/
+│   └── fonts/
+├── hooks/
+│   └── useLocalStorage.js  
+├── contexts/
+│   └── ThemeContext.js     
+├── docs/                 
+│   └── architecture.md
+├── .env.local
+├── next.config.js
+├── package.json
+├── README.md

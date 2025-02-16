@@ -1,17 +1,16 @@
 import "./globals.css";
-import { ThemeProvider } from "@/app/context/ThemeContext.js"
-
+import { ThemeProvider } from "./context/ThemeContext"
 
 export const metadata = {
-    title: "JasGigli AI ChatBot",
-    description: "Super AI Agent with Chat, Translation, and Summarization",
+    title: "JasGigli AI - Your Super AI Agent",
+    description: "A powerful AI agent for chat, summarization, translation, and more.",
 };
 
 export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body>
-                <ThemeProvider> 
+                <ThemeProvider> {/* Wrap the entire app with ThemeProvider */}
                     {children}
                 </ThemeProvider>
             </body>

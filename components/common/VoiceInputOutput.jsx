@@ -1,10 +1,10 @@
+// components/common/VoiceInputOutput.jsx
 import React, { useState, useEffect } from "react";
-import { useTheme } from '@/app/context/ThemeContext'; // Import useTheme
+import { Button } from "@/components/ui/Button"; // Assuming Button component is in "@/components/ui"
 
-export default function VoiceInputOutput({ onVoiceInput }) {
+export default function VoiceInputOutput({ isDarkMode, onVoiceInput }) {
     const [listening, setListening] = useState(false);
     const [transcript, setTranscript] = useState("");
-    const { colors } = useTheme(); // Use ThemeContext
 
     let recognition;
     if (typeof window !== "undefined" && window.SpeechRecognition) {
@@ -30,7 +30,7 @@ export default function VoiceInputOutput({ onVoiceInput }) {
             console.error("Speech recognition error", event.error);
             setListening(false);
         };
-    }, [recognition]);
+    }, [recognition, onVoiceInput]);
 
     const startListening = () => {
         if (recognition) {
@@ -47,28 +47,24 @@ export default function VoiceInputOutput({ onVoiceInput }) {
     };
 
     return (
-        <div className="flex flex-col items-center p-2" style={{ backgroundColor: colors.backgroundPrimary, color: colors.textPrimary }}>
-            <button
+        <div className="flex flex-col items-center p-2">
+            <Button
                 onClick={startListening}
-                className={`px-4 py-2 rounded-md`}
-                style={{
-                    backgroundColor: colors.primary,
-                    color: colors.backgroundPrimary,
-                    '&:hover': { backgroundColor: colors.primaryHover }
-                }}
+                variant="primary"
+                disabled={listening}
             >
                 {listening ? "Listening..." : "Start Voice Input"}
-            </button>
+            </Button>
             {transcript && (
                 <div className="mt-2">
-                    <p className={``} style={{ color: colors.textPrimary }}>Transcript: {transcript}</p>
-                    <button
+                    <p className={isDarkMode ? "text-white" : "text-gray-900"}>Transcript: {transcript}</p>
+                    <Button
                         onClick={() => speakText(transcript)}
-                        className="mt-1 px-3 py-1 rounded-md"
-                        style={{ backgroundColor: colors.secondary, color: colors.backgroundPrimary }}
+                        variant="secondary"
+                        className="mt-1"
                     >
                         Listen Back
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

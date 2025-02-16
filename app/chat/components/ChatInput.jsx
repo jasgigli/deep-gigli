@@ -1,7 +1,7 @@
+// app/chat/components/ChatInput.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { Send, Mic, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '@/app/context/ThemeContext'; // Import useTheme
 
 export default function ChatInput({
     input,
@@ -10,11 +10,11 @@ export default function ChatInput({
     sendMessage,
     isLoading,
     textareaRef,
-    handleVoiceInput,
+    isDarkMode,
 }) {
     const [isListening, setIsListening] = useState(false);
     const [recognition, setRecognition] = useState(null);
-    const { colors } = useTheme(); // Use ThemeContext
+    const voiceInputButtonRef = useRef(null); // Ref for focus management
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -25,15 +25,19 @@ export default function ChatInput({
                 recognition.interimResults = false;
                 recognition.lang = 'en-US';
 
+                recognition.onstart = () => setIsListening(true);
+                recognition.onend = () => setIsListening(false);
+
                 recognition.onresult = (event) => {
                     const transcript = event.results[0][0].transcript;
                     setInput(transcript);
-                    handleVoiceInput(transcript);
-                    setIsListening(false);
+                    voiceInputButtonRef.current?.focus(); // Refocus button after voice input
                 };
 
-                recognition.onerror = () => {
+                recognition.onerror = (event) => {
+                    console.error("Speech recognition error", event.error);
                     setIsListening(false);
+                    voiceInputButtonRef.current?.focus(); // Refocus button on error
                 };
 
                 setRecognition(recognition);
@@ -42,21 +46,19 @@ export default function ChatInput({
     }, []);
 
     const startListening = () => {
-        if (recognition) {
-            setIsListening(true);
+        if (recognition && !isLoading) {
             recognition.start();
         }
     };
 
+
     return (
-        <div className={`border-t`} style={{ borderTopColor: colors.borderPrimary, backgroundColor: colors.backgroundSecondary }}>
+        <div className={`border-t ${isDarkMode ? 'border-[#40414F] bg-[#343541]' : 'border-gray-200 bg-white'}`}>
             <div className="mx-auto max-w-3xl relative px-4 py-3">
                 <motion.div
-                    className={`relative rounded-xl shadow-lg`}
-                    style={{
-                        backgroundColor: colors.backgroundPrimary,
-                        borderColor: colors.borderPrimary
-                    }}
+                    className={`relative rounded-lg shadow-md ${
+                        isDarkMode ? 'bg-[#40414F] border-[#40414F]' : 'bg-white border-gray-300'
+                    }`}
                     whileHover={{ scale: 1.01 }}
                 >
                     <textarea
@@ -64,25 +66,27 @@ export default function ChatInput({
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Message ChatGPT..."
-                        className={`w-full resize-none rounded-xl p-4 pr-24 focus:outline-none focus:ring-0`}
-                        style={{
-                            backgroundColor: colors.backgroundPrimary,
-                            color: colors.textPrimary,
-                            '::placeholder': { color: colors.textAccent } // Placeholder color
-                        }}
+                        placeholder="Message JasGigli AI..."
+                        className={`w-full resize-none rounded-lg p-4 pr-24 focus:outline-none focus:ring-0 ${
+                            isDarkMode
+                                ? 'bg-[#40414F] text-white placeholder-gray-400'
+                                : 'bg-white text-gray-900 placeholder-gray-500'
+                        }`}
                         rows={1}
                         disabled={isLoading}
+                        aria-label="Chat input"
                     />
                     <div className="absolute right-3 bottom-3 flex gap-2">
                         <button
                             onClick={startListening}
                             disabled={isListening || isLoading}
-                            className={`p-2 rounded-lg transition-colors`}
-                            style={{
-                                color: colors.textSecondary,
-                                '&:hover': { color: colors.textPrimary },
-                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                                isDarkMode
+                                    ? 'text-gray-300 hover:text-white'
+                                    : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                            aria-label="Start voice input"
+                            ref={voiceInputButtonRef} // Attach ref to voice input button
                         >
                             <AnimatePresence>
                                 {isListening && (
@@ -98,23 +102,25 @@ export default function ChatInput({
                         <button
                             onClick={sendMessage}
                             disabled={isLoading || !input.trim()}
-                            className={`p-2 rounded-lg transition-colors`}
-                            style={{
-                                color: colors.textSecondary,
-                                '&:hover': { color: colors.textPrimary },
-                                '&:disabled': { color: colors.textAccent },
-                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                                isDarkMode
+                                    ? 'text-gray-300 hover:text-white disabled:text-gray-500'
+                                    : 'text-gray-500 hover:text-gray-700 disabled:text-gray-400'
+                            }`}
+                            aria-label="Send message"
                         >
                             {isLoading ? (
-                                <Loader2 className="w-5 h-5 animate-spin" style={{ color: colors.textPrimary }} />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
-                                <Send className="w-5 h-5" style={{ color: colors.textPrimary }} />
+                                <Send className="w-5 h-5" />
                             )}
                         </button>
                     </div>
                 </motion.div>
-                <p className={`text-center text-xs mt-2`} style={{ color: colors.textAccent }}>
-                    ChatGPT Clone • Experimental UI
+                <p className={`text-center text-xs mt-2 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                    JasGigli AI • Experimental UI
                 </p>
             </div>
         </div>

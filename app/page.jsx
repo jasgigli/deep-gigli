@@ -1,27 +1,20 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Head from "next/head";
+import axios from "axios";
 import { toast } from "react-hot-toast";
-import { ThemeProvider, useTheme } from '@/app/context/ThemeContext'; // Import useTheme Hook
 
-// Import Layout Components
-import Sidebar from "@/components/layouts/Sidebar";
-import ChatHeader from "@/components/layouts/ChatHeader";
-
-// Import Panel Components
-import ChatPanel from "@/components/panels/ChatPanel";
-import SummarizePanel from "@/components/panels/SummarizePanel";
-import TranslatePanel from "@/components/panels/TranslatePanel";
-
-// Import UI Components
-import SettingsModal from "@/components/SettingsModal";
-import ToolSelector from "@/components/ToolSelector";
+// Import Components
+import Sidebar from "@/components/layouts/Sidebar"
+import Header from "@/components/layouts/Header"
+import ChatPanel from "./chat/components/ChatPanel"
+import SummarizePanel from "./summarize/components/SummarizePanel"
+import TranslatePanel from "./translate/components/TranslatePanel"
+import SettingsModal from "@/components/common/SettingModal"
+import ToolSelector from "@/components/common/ToolSelector"
 
 export default function Home() {
-    // --- Get toggleDarkMode from ThemeContext ---
-    const { toggleDarkMode } = useTheme(); // ADD THIS LINE - Get toggleDarkMode from context
-
     // --- State Management ---
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
@@ -29,7 +22,6 @@ export default function Home() {
     const [isTyping, setIsTyping] = useState(false);
     const [conversations, setConversations] = useState([]);
     const [currentConversation, setCurrentConversation] = useState(null);
-    // Removed isDarkMode state
     const [settings, setSettings] = useState({ // Default settings
         model: "gemini-1.5-flash",
         temperature: 0.7,
@@ -37,185 +29,154 @@ export default function Home() {
         showTimestamp: true,
         enableMarkdown: true,
     });
-    const [showSettings, setShowSettings] = useState(false);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-    // Advanced tool state
     const [summaryResult, setSummaryResult] = useState("");
     const [translationResult, setTranslationResult] = useState("");
     const [targetLanguage, setTargetLanguage] = useState("");
+    const [selectedTool, setSelectedTool] = useState("chat"); // Default tool is chat
 
-    // Tool selection state (default is "chat")
-    const [selectedTool, setSelectedTool] = useState("chat");
+    const textareaRef = useRef(null);
 
-    // Ref for textarea auto-resize
-    const textareaRef = React.useRef(null);
+    // --- Theme Context (Assume you have ThemeContext setup) ---
+    // const { isDarkMode, toggleTheme } = useTheme(); // If you are using ThemeContext
 
-    // --- Load & Save State (useEffect hooks) ---
+    const [isDarkMode, setIsDarkMode] = useState(false); // Example theme state, replace with context if using
+    const toggleTheme = () => {
+        setIsDarkMode(!isDarkMode);
+    };
+
+
+    // --- Load and Save Settings/Conversations ---
     useEffect(() => {
-        // Load settings from localStorage
+        // Load theme from local storage
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+            setIsDarkMode(savedTheme === "dark");
+        }
+        // Load settings from local storage
         const savedSettings = localStorage.getItem("settings");
-        if (savedSettings) setSettings(JSON.parse(savedSettings) || settings); // Use default if nothing saved
-
-        // Load conversations from localStorage
+        if (savedSettings) {
+            setSettings(JSON.parse(savedSettings));
+        }
+        // Load conversations from local storage
         const savedConversations = localStorage.getItem("conversations");
-        if (savedConversations) setConversations(JSON.parse(savedConversations) || []);
+        if (savedConversations) {
+            setConversations(JSON.parse(savedConversations));
+        }
     }, []);
 
-
     useEffect(() => {
-        localStorage.setItem("conversations", JSON.stringify(conversations));
-    }, [conversations]);
+        localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+    }, [isDarkMode]);
 
     useEffect(() => {
         localStorage.setItem("settings", JSON.stringify(settings));
     }, [settings]);
 
-    // Removed useEffect for theme saving/loading - ThemeContext handles this now
+    useEffect(() => {
+        localStorage.setItem("conversations", JSON.stringify(conversations));
+    }, [conversations]);
 
 
-    // --- Input Textarea Auto-Resize ---
+    // --- Auto-resize Textarea ---
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = "0px";
-            textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + "px";
+            const scrollHeight = textareaRef.current.scrollHeight;
+            textareaRef.current.style.height = Math.min(scrollHeight, 200) + "px";
         }
     }, [input]);
 
-    // --- Conversation Management Functions ---
+    // --- Conversation Management Handlers ---
     const createNewConversation = () => {
         const newConversation = {
-            id: Date.now().toString(), // Simple unique ID
-            title: "New Conversation",
+            id: Date.now(),
+            title: "New Chat",
             messages: [],
+            timestamp: new Date().toISOString(),
         };
-        setConversations((prev) => [newConversation, ...prev]);
+        setConversations([newConversation, ...conversations]);
         setCurrentConversation(newConversation);
-        setMessages([]); // Clear messages for new conversation
+        setMessages([]);
+        setSelectedTool("chat"); // Reset tool to chat when creating new conversation
     };
 
     const saveConversation = () => {
-        if (!currentConversation) return;
-        const updatedConversation = {
-            ...currentConversation,
-            messages: messages, // Update messages in current conversation
-        };
-        setCurrentConversation(updatedConversation);
-        setConversations(
-            conversations.map((conv) =>
-                conv.id === currentConversation.id ? updatedConversation : conv
-            )
-        );
-        toast.success("Conversation saved!");
+        if (currentConversation) {
+            const updatedConversations = conversations.map((conv) =>
+                conv.id === currentConversation.id
+                    ? { ...conv, messages, timestamp: new Date().toISOString() }
+                    : conv
+            );
+            setConversations(updatedConversations);
+            toast.success("Conversation saved!");
+        }
     };
-
 
     const deleteConversation = (id) => {
-        setConversations((prev) => prev.filter((conv) => conv.id !== id));
-        if (currentConversation && currentConversation.id === id) {
+        setConversations(conversations.filter((conv) => conv.id !== id));
+        if (currentConversation?.id === id) {
             setCurrentConversation(null);
-            setMessages([]); // Clear messages if deleting current conversation
+            setMessages([]);
         }
-        toast.success("Conversation deleted!");
+        toast.success("Conversation deleted");
     };
 
-
     const exportConversation = () => {
-        if (!currentConversation || messages.length === 0) {
-            toast.error("No conversation to export.");
-            return;
-        }
-
-        const filename = `conversation-${currentConversation.id}.json`;
-        const jsonStr = JSON.stringify({
-            title: currentConversation.title,
-            messages: messages,
-            settings: settings // Include settings in export
-        }, null, 2); // Pretty print JSON
-
-        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const conversationData = { messages, settings, timestamp: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(conversationData, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link); // Clean up
-        URL.revokeObjectURL(url); // Revoke URL
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `chat-export-${new Date().toISOString()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
         toast.success("Conversation exported!");
     };
 
-
     const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text).then(() => {
-            toast.success("Code copied to clipboard!");
-        }).catch(err => {
-            console.error("Failed to copy text: ", err);
-            toast.error("Failed to copy code to clipboard.");
-        });
+        navigator.clipboard.writeText(text);
+        toast.success("Copied to clipboard!");
     };
-
 
     const regenerateResponse = async () => {
-        if (messages.length < 2 || isLoading) return; // Ensure there's a user message and AI response to regenerate
-        setIsLoading(true);
-        setIsTyping(true);
-
-        const conversationHistory = messages.slice(0, messages.length - 1); // Exclude the last AI response
-
-        const lastUserMessage = conversationHistory.filter(msg => msg.sender === 'user').pop(); // Get last user message
-
-        if (!lastUserMessage) {
-            toast.error("No user message to regenerate response for.");
-            setIsLoading(false);
-            setIsTyping(false);
-            return;
-        }
-
-
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: lastUserMessage.text, settings }), // Regenerate based on last user message
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        if (messages.length === 0) return;
+        const lastUserMessage = messages.slice().reverse().find((msg) => msg.sender === "user");
+        if (lastUserMessage) {
+            setIsLoading(true);
+            setIsTyping(true);
+            try {
+                const { data } = await axios.post("/api/chat", { message: lastUserMessage.text, settings });
+                setMessages((prev) => {
+                    const newMessages = [...prev];
+                    const lastAiIndex = newMessages.slice().reverse().findIndex((msg) => msg.sender === "ai");
+                    if (lastAiIndex !== -1) {
+                        const index = newMessages.length - 1 - lastAiIndex;
+                        newMessages[index] = {
+                            text: data.reply,
+                            sender: "ai",
+                            timestamp: new Date().toISOString(),
+                        };
+                    } else {
+                        newMessages.push({
+                            text: data.reply,
+                            sender: "ai",
+                            timestamp: new Date().toISOString(),
+                        });
+                    }
+                    return newMessages;
+                });
+            } catch (error) {
+                toast.error("Failed to regenerate response");
+            } finally {
+                setIsLoading(false);
+                setIsTyping(false);
             }
-
-            const data = await response.json();
-            const regeneratedAiMessage = {
-                text: data.reply,
-                sender: "ai",
-                timestamp: new Date().toISOString(),
-                regenerated: true, // Flag as regenerated if needed for UI
-            };
-
-
-            const updatedMessages = [...conversationHistory, regeneratedAiMessage]; // Replace last AI response
-            setMessages(updatedMessages);
-
-
-        } catch (error) {
-            console.error("Error regenerating response:", error);
-            toast.error("Failed to regenerate response.");
-            const errorMessage = {
-                text: "Failed to regenerate response. Please try again.",
-                sender: "ai",
-                error: true,
-                timestamp: new Date().toISOString(),
-            };
-            setMessages((prev) => [...prev, errorMessage]);
-        } finally {
-            setIsLoading(false);
-            setIsTyping(false);
         }
     };
-
 
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
@@ -229,29 +190,14 @@ export default function Home() {
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
         setIsTyping(true);
-
         try {
-            const response = await fetch('/api/chat', { // Using fetch for API call - consistent with Next.js
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: currentMessage, settings }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`); // Improved error handling
-            }
-
-            const data = await response.json();
-
+            const { data } = await axios.post("/api/chat", { message: currentMessage, settings });
             const aiMessage = {
                 text: data.reply,
                 sender: "ai",
                 timestamp: new Date().toISOString(),
             };
             setMessages((prev) => [...prev, aiMessage]);
-
             if (messages.length === 0 && currentConversation) {
                 const updatedConversation = {
                     ...currentConversation,
@@ -264,9 +210,7 @@ export default function Home() {
                     )
                 );
             }
-
         } catch (error) {
-            console.error("Error sending message:", error);
             const errorMessage = {
                 text: "An error occurred. Please try again.",
                 sender: "ai",
@@ -281,18 +225,16 @@ export default function Home() {
         }
     };
 
-
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
     };
 
-    // Removed toggleTheme function - ThemeContext provides this globally
     const formatTimestamp = (timestamp) => new Date(timestamp).toLocaleTimeString();
 
-    // --- Tool-Specific Functions ---
+    // --- Tool Specific Functions ---
     const summarizeConversation = async () => {
         if (messages.length === 0) {
             toast.error("No conversation to summarize.");
@@ -300,31 +242,20 @@ export default function Home() {
         }
         setIsLoading(true);
         try {
-            const response = await fetch('/api/summarize', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ messages }),
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
+            const { data } = await axios.post("/api/summarize", { messages });
             setSummaryResult(data.summary);
             toast.success("Conversation summarized!");
         } catch (error) {
-            console.error("Error summarizing conversation:", error);
             toast.error("Failed to summarize conversation");
+            console.error("Summarize error:", error);
         } finally {
             setIsLoading(false);
         }
     };
 
-
-    const translateConversation = async (targetLanguage) => {
+    const translateConversation = async () => {
         if (!targetLanguage) {
-            toast.error("Please enter a target language for translation.");
+            toast.error("Please enter a target language.");
             return;
         }
         if (messages.length === 0) {
@@ -333,27 +264,13 @@ export default function Home() {
         }
         setIsLoading(true);
         try {
-            // **Important: You need to create the /api/translate endpoint**
-            // This is placeholder - you'll implement the actual translation logic in app/api/translate/route.js
-            const response = await fetch('/api/translate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ messages, targetLanguage }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            setTranslationResult(data.translation); // Assuming your API returns { translation: "..." }
+            const fullText = messages.map((msg) => msg.text).join("\n"); // Join messages with newlines
+            const { data } = await axios.post("/api/translate", { text: fullText, targetLanguage });
+            setTranslationResult(data.translation);
             toast.success("Conversation translated!");
-
         } catch (error) {
-            console.error("Error translating conversation:", error);
             toast.error("Failed to translate conversation");
+            console.error("Translation error:", error);
         } finally {
             setIsLoading(false);
         }
@@ -363,95 +280,100 @@ export default function Home() {
     return (
         <>
             <Head>
-                <title>JasGigli AI Chat App</title>
-                <meta name="description" content="Super AI Agent with Chat, Translation, and Summarization" />
+                <title>JasGigli AI - Super AI Agent</title>
+                <meta name="description" content="Your powerful AI agent for chat, summarization, and translation." />
             </Head>
 
-            <ThemeProvider> {/* Wrap the entire content with ThemeProvider */}
-                <div className={`flex h-screen overflow-hidden`}> {/* Removed theme class from here */}
-                    <Sidebar
-                        conversations={conversations}
-                        currentConversation={currentConversation}
-                        setCurrentConversation={(conv) => {
-                            setCurrentConversation(conv);
-                            setMessages(conv.messages);
-                            setIsMobileSidebarOpen(false);
-                        }}
-                        createNewConversation={createNewConversation}
-                        deleteConversation={deleteConversation}
-                        setShowSettings={setShowSettings}
-                        isMobileSidebarOpen={isMobileSidebarOpen}
-                        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
-                        selectedTool={selectedTool}
-                        setSelectedTool={setSelectedTool}
+            <div className={`flex h-screen overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
+                {/* Sidebar */}
+                <Sidebar
+                    isDarkMode={isDarkMode}
+                    toggleTheme={toggleTheme}
+                    conversations={conversations}
+                    currentConversation={currentConversation}
+                    setCurrentConversation={(conv) => {
+                        setCurrentConversation(conv);
+                        setMessages(conv.messages);
+                        setIsMobileSidebarOpen(false);
+                    }}
+                    createNewConversation={createNewConversation}
+                    deleteConversation={deleteConversation}
+                    setShowSettings={setShowSettingsModal}
+                    isMobileSidebarOpen={isMobileSidebarOpen}
+                    setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+                    selectedTool={selectedTool}
+                    setSelectedTool={setSelectedTool}
+                />
+
+                {/* Main Content */}
+                <main className={`flex-1 flex flex-col relative ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+                    {/* Header */}
+                    <Header
+                        isDarkMode={isDarkMode}
+                        saveConversation={saveConversation}
+                        exportConversation={exportConversation}
+                        regenerateResponse={regenerateResponse}
+                        settings={settings}
                     />
 
-                    <main className={`flex-1 flex flex-col relative `}> {/* Removed theme class from here */}
-                        <ChatHeader
-                            saveConversation={saveConversation}
-                            exportConversation={exportConversation}
-                            regenerateResponse={regenerateResponse}
-                            settings={settings}
-                            setShowSettings={setShowSettings} // Make sure to pass setShowSettings
-                            toggleDarkMode={toggleDarkMode}     // ADD THIS LINE - Pass toggleDarkMode prop
-                        />
-
+                    {/* Tool Selector */}
+                    <div className="px-4 pt-2">
                         <ToolSelector
                             selectedTool={selectedTool}
                             setSelectedTool={setSelectedTool}
                         />
-
-                        <div className="flex-1 overflow-auto">
-                            {selectedTool === "chat" && (
-                                <ChatPanel
-                                    messages={messages}
-                                    settings={settings}
-                                    formatTimestamp={formatTimestamp}
-                                    copyToClipboard={copyToClipboard}
-                                    isTyping={isTyping}
-                                    input={input}
-                                    setInput={setInput}
-                                    handleKeyDown={handleKeyDown}
-                                    sendMessage={sendMessage}
-                                    isLoading={isLoading}
-                                    textareaRef={textareaRef}
-                                />
-                            )}
+                    </div>
 
 
-                            {selectedTool === "summarize" && (
-                                <SummarizePanel
-                                    summarizeConversation={summarizeConversation} // You can remove this now as summarization is triggered by handleSummarize in SummarizePanel
-                                    summaryResult={summaryResult}
-                                    isLoading={isLoading}
-                                    setSummaryResult={setSummaryResult} // Pass setSummaryResult
-                                    setIsLoading={setIsLoading}      // Pass setIsLoading
-                                />
-                            )}
-
-                            {selectedTool === "translate" && (
-                                <TranslatePanel
-                                    targetLanguage={targetLanguage}
-                                    setTargetLanguage={setTargetLanguage}
-                                    translateConversation={translateConversation} // Remove this, translation is triggered by handleTranslate in TranslatePanel
-                                    translationResult={translationResult}
-                                    isLoading={isLoading}
-                                    setTranslationResult={setTranslationResult} // Pass setTranslationResult
-                                    setIsLoading={setIsLoading}         // Pass setIsLoading
-                                />
-                            )}
-                        </div>
-
-                        {showSettings && (
-                            <SettingsModal
+                    {/* Panel Area */}
+                    <div className="flex-1 overflow-auto">
+                        {selectedTool === "chat" && (
+                            <ChatPanel
+                                messages={messages}
+                                isDarkMode={isDarkMode}
                                 settings={settings}
-                                setSettings={setSettings}
-                                setShowSettings={setShowSettings}
+                                formatTimestamp={formatTimestamp}
+                                copyToClipboard={copyToClipboard}
+                                isTyping={isTyping}
+                                input={input}
+                                setInput={setInput}
+                                handleKeyDown={handleKeyDown}
+                                sendMessage={sendMessage}
+                                isLoading={isLoading}
+                                textareaRef={textareaRef}
                             />
                         )}
-                    </main>
-                </div>
-            </ThemeProvider>
+
+                        {selectedTool === "summarize" && (
+                            <SummarizePanel
+                                summarizeConversation={summarizeConversation}
+                                summaryResult={summaryResult}
+                                isLoading={isLoading} // Pass isLoading state
+                            />
+                        )}
+
+                        {selectedTool === "translate" && (
+                            <TranslatePanel
+                                targetLanguage={targetLanguage}
+                                setTargetLanguage={setTargetLanguage}
+                                translateConversation={translateConversation}
+                                translationResult={translationResult}
+                                isLoading={isLoading} // Pass isLoading state
+                            />
+                        )}
+                    </div>
+
+                    {/* Settings Modal */}
+                    {showSettingsModal && (
+                        <SettingsModal
+                            settings={settings}
+                            setSettings={setSettings}
+                            isDarkMode={isDarkMode}
+                            setShowSettings={setShowSettingsModal}
+                        />
+                    )}
+                </main>
+            </div>
         </>
     );
 }
