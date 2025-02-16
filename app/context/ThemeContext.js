@@ -8,66 +8,54 @@ const ThemeProvider = ({ children }) => {
     const [darkMode, setDarkMode] = useState(false); // Default to light mode
     const [colors, setColors] = useState({
         lightMode: {
-            // Primary Brand Colors
-            primary: '#6366F1',          // Indigo-500 (Primary actions, brand accent)
-            primaryHover: '#4F46E5',     // Indigo-600 (Hover state for primary)
-            secondary: '#10B981',        // Green-500  (Success, secondary actions)
-            secondaryHover: '#059669',   // Green-600 (Hover for secondary)
-            accent: '#F59E0B',           // Yellow-500 (Warnings, accents)
-            accentHover: '#D97706',      // Yellow-600 (Hover for accent)
+            // Serene Ocean Light Theme Palette (Psychologically Relaxing & Attractive)
+            primary: '#64B5F6',          // Soft Blue (Light Blue 300) - Calming Primary
+            primaryHover: '#42A5F5',
+            secondary: '#81C784',        // Sea Green (Green 300) - Natural & Harmonious
+            secondaryHover: '#66BB6A',
+            accent: '#FFD54F',           // Warm Sand (Yellow 300) - Subtle & Gentle Accent
+            accentHover: '#FFCA28',
 
-            // Background and Surface Colors
-            backgroundPrimary: '#FFFFFF',   // White (Main page background)
-            backgroundSecondary: '#F9FAFB', // Gray-50 (Card backgrounds, secondary surfaces)
-            backgroundAccent: '#E5E7EB',    // Gray-200 (Subtle background accents)
+            backgroundPrimary: '#F8F9FA', // Off-White (Gray 50) - Clean Main Background
+            backgroundSecondary: '#ECEFF1', // Light Gray (Blue Gray 100) - Card Backgrounds
+            backgroundAccent: '#E0E0E0',  // Very Light Gray (Gray 200) - Subtle Accents
 
-            // Text Colors
-            textPrimary: '#111827',      // Gray-900 (Main text color)
-            textSecondary: '#4B5563',    // Gray-500 (Secondary, muted text)
-            textAccent: '#6B7280',       // Gray-400 (Hint text, less important text)
+            textPrimary: '#424242',      // Dark Gray (Gray 800) - Readable Main Text
+            textSecondary: '#757575',    // Medium Gray (Gray 600) - Muted Secondary Text
+            textAccent: '#9E9E9E',       // Light Gray (Gray 500) - Hint/Less Important Text
 
-            // Border Colors
-            borderPrimary: '#D1D5DB',     // Gray-300 (Default borders)
-            borderSecondary: '#E5E7EB',   // Gray-200 (Lighter borders)
+            borderPrimary: '#BDBDBD',    // Light Gray (Gray 400) - Soft Borders
+            borderSecondary: '#CFD8DC',  // Very Light Gray (Blue Gray 200) - Lighter Borders
 
-            // Status Colors (Optional, can be added if needed)
-            success: '#22C55E',         // Green-500
-            error: '#EF4444',           // Red-500
-            warning: '#F59E0B',         // Yellow-500
-            info: '#3AB7BF',            // Cyan-500
-
-            // ... add more semantic colors as needed for light mode
+            success: '#4CAF50',          // Green 500 - Standard Success Green
+            error: '#F44336',            // Red 500 - Standard Error Red
+            warning: '#FFC107',          // Amber 500 - Standard Warning Amber
+            info: '#03A9F4',             // Light Blue 500 - Standard Info Light Blue
         },
         darkMode: {
-            // Primary Brand Colors
-            primary: '#A78BFA',          // Indigo-400 (Dark Mode Primary)
-            primaryHover: '#8B5CF6',     // Indigo-500 (Hover for dark mode primary)
-            secondary: '#34D399',        // Green-400  (Dark Mode Secondary)
-            secondaryHover: '#22C55E',   // Green-500 (Hover for dark mode secondary)
-            accent: '#FCD34D',           // Yellow-400 (Dark Mode Accent)
-            accentHover: '#FBBF24',      // Yellow-500 (Hover for dark mode accent)
+            // Serene Ocean Dark Theme Palette (Relaxing & Attractive Dark Mode)
+            primary: '#1E88E5',          // Deep Blue (Blue 600) - Dark Mode Primary
+            primaryHover: '#1976D2',
+            secondary: '#26A69A',        // Teal Green (Teal 600) - Sophisticated Dark Secondary
+            secondaryHover: '#009688',
+            accent: '#FFEE58',           // Moon Yellow (Yellow A200) - Soft Dark Mode Accent
+            accentHover: '#FDD835',
 
-            // Background and Surface Colors
-            backgroundPrimary: '#111827',   // Gray-900 (Dark Main page background)
-            backgroundSecondary: '#1F2937', // Gray-800 (Dark Card backgrounds)
-            backgroundAccent: '#374151',    // Gray-700 (Dark Subtle background accents)
+            backgroundPrimary: '#263238', // Dark Navy (Blue Gray 900) - Deep Dark Background
+            backgroundSecondary: '#37474F', // Darker Gray (Blue Gray 800) - Dark Card Backgrounds
+            backgroundAccent: '#455A64',  // Even Darker Gray (Blue Gray 700) - Dark Subtle Accents
 
-            // Text Colors
-            textPrimary: '#F9FAFB',      // Gray-50  (Dark Primary Text)
-            textSecondary: '#D1D5DB',    // Gray-300 (Dark Secondary Text)
-            textAccent: '#9CA3AF',       // Gray-400 (Dark Hint text)
+            textPrimary: '#ECEFF1',      // Off-White (Blue Gray 100) - Light Text for Dark Mode
+            textSecondary: '#B0BEC5',    // Light Gray (Blue Gray 300) - Muted Dark Mode Text
+            textAccent: '#90A4AE',       // Medium Gray (Blue Gray 400) - Dark Hint Text
 
-            // Border Colors
-            borderPrimary: '#4B5563',     // Gray-500 (Dark Default borders)
-            borderSecondary: '#6B7280',   // Gray-400 (Dark Lighter borders)
+            borderPrimary: '#546E7A',    // Dark Gray (Blue Gray 600) - Dark Mode Borders
+            borderSecondary: '#607D8B',  // Lighter Dark Gray (Blue Gray 500) - Lighter Dark Borders
 
-            // Status Colors (Optional, adapt for dark mode if needed)
-            success: '#22C55E',         // Green-500 (Keep same or adjust brightness)
-            error: '#EF4444',           // Red-500 (Keep same or adjust brightness)
-            warning: '#F59E0B',         // Yellow-500 (Keep same or adjust brightness)
-            info: '#3AB7BF',            // Cyan-500 (Keep same or adjust brightness)
-
-            // ... add more semantic colors as needed for dark mode
+            success: '#4CAF50',          // Green 500 - Keep Success Green
+            error: '#F44336',            // Red 500 - Keep Error Red
+            warning: '#FFC107',          // Amber 500 - Keep Warning Amber
+            info: '#03A9F4',             // Light Blue 500 - Keep Info Light Blue
         },
     });
 

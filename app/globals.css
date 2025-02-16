@@ -3,24 +3,102 @@
 @tailwind utilities;
 
 html {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
-.prose {
-  color: inherit;
+@layer base {
+    html {
+        @apply font-sans antialiased text-base;
+        font-feature-settings: 'rlig' 1, 'calt' 0;
+        color: theme('colors.textPrimary');
+        background-color: theme('colors.backgroundPrimary');
+    }
+    body {
+        @apply text-textPrimary bg-backgroundPrimary;
+        line-height: 1.6;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-semibold tracking-tight;
+        line-height: 1.25; /* Slightly tighter line-height for headings in this palette */
+        /* You can adjust font sizes for headings here if needed for this theme */
+    }
+
+    a {
+        @apply text-primary hover:text-primaryHover transition-colors duration-200;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline; /* Keep underline on hover for accessibility */
+    }
+
+    input, textarea, select, button {
+        @apply rounded-md focus:ring-primary focus:border-primary transition-shadow duration-150; /* Removed 'border border-borderPrimary' to remove borders */
+        padding: 0.625rem 0.875rem; /* Adjusted padding for form elements */
+        background-color: theme('colors.backgroundSecondary');
+        color: theme('colors.textPrimary');
+        @apply dark:bg-backgroundSecondary dark:focus:ring-primary dark:focus:border-primary;
+        outline: none;
+    }
+
+    ul, ol {
+        @apply list-disc ml-6; /* Slightly increased ml for list */
+    }
+    ol {
+        @apply list-decimal;
+    }
 }
-.prose code {
-  background-color: rgba(110, 118, 129, 0.4);
-  padding: 0.2em 0.4em;
-  border-radius: 6px;
+
+@layer utilities {
+    .container {
+        @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-10; /* Adjusted container padding */
+        /* Consider wider max-w if needed for this theme */
+    }
+
+    .card {
+        @apply bg-backgroundSecondary rounded-lg shadow-sm p-5; /* Removed 'border border-borderPrimary' from cards as well if you want borderless cards */
+        @apply dark:bg-backgroundSecondary; /* Removed dark mode border from cards too */
+    }
+
+    .btn {
+        @apply font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200;
+        padding-left: 1.125rem; /* Slightly adjusted button padding */
+        padding-right: 1.125rem;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+    .btn-primary {
+        @apply bg-primary text-white hover:bg-primaryHover;
+    }
+    .btn-secondary {
+        @apply bg-secondary text-white hover:bg-secondaryHover;
+    }
+    .btn-accent {
+        @apply bg-accent text-textPrimary hover:bg-accentHover text-primary; /* Example accent button */
+    }
+
+    /*  Example utility for text accent color */
+    .text-accent-theme {
+        color: theme('colors.accent');
+    }
 }
-.prose pre {
-  background-color: rgba(110, 118, 129, 0.4);
-  padding: 1em;
-  border-radius: 6px;
-  overflow-x: auto;
+
+/* WebKit Scrollbar Styling - Theme-Aware, Refined for Serene Palette */
+::-webkit-scrollbar {
+    @apply w-2.5 h-2.5; /* Slightly wider scrollbar for this theme */
 }
-.prose ul,
-.prose ol {
-  padding-left: 1.5em;
+
+::-webkit-scrollbar-thumb {
+    @apply bg-borderPrimary rounded-md; /* Slightly less rounded thumb for a different feel */
 }
+
+::-webkit-scrollbar-track {
+    @apply bg-backgroundAccent; /* Use backgroundAccent for scrollbar track in this theme */
+}
+
+
+/* Firefox Scrollbar (Basic, for broader compatibility) */
+/* html {
+    scrollbar-color: theme('colors.borderPrimary') theme('colors.backgroundSecondary');
+    scrollbar-width: thin;
+} */
