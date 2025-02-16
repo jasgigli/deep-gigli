@@ -2,3 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
+.prose {
+  color: inherit;
+}
+.prose code {
+  background-color: rgba(110, 118, 129, 0.4);
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+}
+.prose pre {
+  background-color: rgba(110, 118, 129, 0.4);
+  padding: 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.5em;
+}
