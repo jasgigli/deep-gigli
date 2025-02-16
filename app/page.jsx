@@ -12,13 +12,15 @@ import ChatMessages from "../components/ChatMessages";
 import ChatInput from "../components/ChatInput";
 import SettingsModal from "../components/SettingsModal";
 import AdvancedToolsModal from "../components/AdvancedToolsModal";
+import AnalyticsDashboard from "../components/AnalyticsDashboard";
+import Collaboration from "../components/Collaboration";
 
 export default function Home() {
-  // Shared state
+  // Core chat state
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false); // For typing indicator
+  const [isTyping, setIsTyping] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -32,36 +34,32 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // NEW: Advanced Tools Modal state
+  // Advanced tools state
   const [showAdvancedTools, setShowAdvancedTools] = useState(false);
   const [summaryResult, setSummaryResult] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
+  // Analytics & Collaboration state (could be expanded)
+  const [showAnalytics, setShowAnalytics] = useState(false);
+
   const chatContainerRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // Load saved data on mount
+  // Load saved state on mount (for simplicity, using localStorage)
   useEffect(() => {
     const savedConversations = localStorage.getItem("conversations");
-    if (savedConversations) {
-      setConversations(JSON.parse(savedConversations));
-    }
+    if (savedConversations) setConversations(JSON.parse(savedConversations));
     const savedSettings = localStorage.getItem("settings");
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
+    if (savedSettings) setSettings(JSON.parse(savedSettings));
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === "dark");
-    }
+    if (savedTheme) setIsDarkMode(savedTheme === "dark");
   }, []);
 
-  // Persist conversations
   useEffect(() => {
     localStorage.setItem("conversations", JSON.stringify(conversations));
   }, [conversations]);
 
-  // Auto-adjust textarea height
+  // Auto-resize input textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "0px";
@@ -70,7 +68,7 @@ export default function Home() {
     }
   }, [input]);
 
-  // Conversation management functions
+  // Conversation functions (create, save, delete, export, rename)
   const createNewConversation = () => {
     const newConversation = {
       id: Date.now(),
@@ -105,15 +103,8 @@ export default function Home() {
   };
 
   const exportConversation = () => {
-    const conversationData = {
-      messages,
-      settings,
-      timestamp: new Date().toISOString(),
-    };
-    const blob = new Blob(
-      [JSON.stringify(conversationData, null, 2)],
-      { type: "application/json" }
-    );
+    const conversationData = { messages, settings, timestamp: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(conversationData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -132,32 +123,19 @@ export default function Home() {
 
   const regenerateResponse = async () => {
     if (messages.length === 0) return;
-    
     const lastUserMessage = messages.findLast((msg) => msg.sender === "user");
     if (lastUserMessage) {
       setIsLoading(true);
       setIsTyping(true);
       try {
-        const { data } = await axios.post("/api/chat", { 
-          message: lastUserMessage.text,
-          settings,
-        });
-        
+        const { data } = await axios.post("/api/chat", { message: lastUserMessage.text, settings });
         setMessages((prev) => {
           const newMessages = [...prev];
           const lastAiIndex = newMessages.findLastIndex((msg) => msg.sender === "ai");
           if (lastAiIndex !== -1) {
-            newMessages[lastAiIndex] = {
-              text: data.reply,
-              sender: "ai",
-              timestamp: new Date().toISOString(),
-            };
+            newMessages[lastAiIndex] = { text: data.reply, sender: "ai", timestamp: new Date().toISOString() };
           } else {
-            newMessages.push({
-              text: data.reply,
-              sender: "ai",
-              timestamp: new Date().toISOString(),
-            });
+            newMessages.push({ text: data.reply, sender: "ai", timestamp: new Date().toISOString() });
           }
           return newMessages;
         });
@@ -172,30 +150,16 @@ export default function Home() {
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
-
     setIsLoading(true);
     const currentMessage = input.trim();
-    const userMessage = { 
-      text: currentMessage, 
-      sender: "user",
-      timestamp: new Date().toISOString(),
-    };
+    const userMessage = { text: currentMessage, sender: "user", timestamp: new Date().toISOString() };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
-
     setIsTyping(true);
     try {
-      const { data } = await axios.post("/api/chat", { 
-        message: currentMessage,
-        settings,
-      });
-      const aiMessage = { 
-        text: data.reply, 
-        sender: "ai",
-        timestamp: new Date().toISOString(),
-      };
+      const { data } = await axios.post("/api/chat", { message: currentMessage, settings });
+      const aiMessage = { text: data.reply, sender: "ai", timestamp: new Date().toISOString() };
       setMessages((prev) => [...prev, aiMessage]);
-      
       if (messages.length === 0 && currentConversation) {
         const updatedConversation = {
           ...currentConversation,
@@ -209,12 +173,7 @@ export default function Home() {
         );
       }
     } catch (error) {
-      const errorMessage = {
-        text: "An error occurred. Please try again.",
-        sender: "ai",
-        error: true,
-        timestamp: new Date().toISOString(),
-      };
+      const errorMessage = { text: "An error occurred. Please try again.", sender: "ai", error: true, timestamp: new Date().toISOString() };
       setMessages((prev) => [...prev, errorMessage]);
       toast.error("Failed to send message");
     } finally {
@@ -235,10 +194,9 @@ export default function Home() {
     localStorage.setItem("theme", !isDarkMode ? "dark" : "light");
   };
 
-  const formatTimestamp = (timestamp) =>
-    new Date(timestamp).toLocaleTimeString();
+  const formatTimestamp = (timestamp) => new Date(timestamp).toLocaleTimeString();
 
-  // NEW: Summarize conversation using Google Gemini
+  // Advanced Tools functions:
   const summarizeConversation = async () => {
     try {
       const { data } = await axios.post("/api/summarize", { messages });
@@ -249,7 +207,6 @@ export default function Home() {
     }
   };
 
-  // NEW: Search conversation using DeepSeek-like semantic search
   const searchConversation = async (query) => {
     try {
       const { data } = await axios.post("/api/search", { query, messages });
@@ -263,18 +220,11 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Enhanced ChatGPT Clone</title>
-        <meta
-          name="description"
-          content="An enhanced ChatGPT clone with advanced features"
-        />
+        <title>Modern AI Chat App</title>
+        <meta name="description" content="A modern, advanced AI chat app solving real-world problems" />
       </Head>
 
-      <div
-        className={`flex h-screen overflow-hidden ${
-          isDarkMode ? "bg-[#343541]" : "bg-gray-50"
-        }`}
-      >
+      <div className={`flex h-screen overflow-hidden ${isDarkMode ? "bg-[#343541]" : "bg-gray-50"}`}>
         <Sidebar
           isDarkMode={isDarkMode}
           toggleTheme={toggleTheme}
@@ -298,18 +248,13 @@ export default function Home() {
           }}
         />
 
-        <main
-          className={`flex-1 flex flex-col relative ${
-            isDarkMode ? "bg-[#343541]" : "bg-white"
-          }`}
-        >
+        <main className={`flex-1 flex flex-col relative ${isDarkMode ? "bg-[#343541]" : "bg-white"}`}>
           <ChatHeader
             isDarkMode={isDarkMode}
             saveConversation={saveConversation}
             exportConversation={exportConversation}
             regenerateResponse={regenerateResponse}
             settings={settings}
-            // NEW: Open advanced tools modal when clicking the new button
             openAdvancedTools={() => setShowAdvancedTools(true)}
           />
 
@@ -339,6 +284,17 @@ export default function Home() {
               summaryResult={summaryResult}
               searchConversation={searchConversation}
               searchResults={searchResults}
+            />
+          )}
+
+          {/* Optional: Show analytics dashboard */}
+          {showAnalytics && <AnalyticsDashboard />}
+
+          {/* Real-time Collaboration Component */}
+          {currentConversation && (
+            <Collaboration
+              conversationId={currentConversation.id}
+              onUpdate={(updatedMessages) => setMessages(updatedMessages)}
             />
           )}
 
