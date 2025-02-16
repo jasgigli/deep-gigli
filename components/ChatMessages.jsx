@@ -1,197 +1,139 @@
-// components/ChatMessages.js
-import React from "react";
-import { User, Bot, Copy, Share2, ThumbsUp, ThumbsDown } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import { ToastContainer, toast } from 'react-toastify';
+import React from 'react';
+import { User, Bot, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { motion } from 'framer-motion';
+import { useTheme } from '@/app/context/ThemeContext'; // Import useTheme
+
 
 export default function ChatMessages({
-  messages,
-  isDarkMode,
-  settings,
-  formatTimestamp,
-  copyToClipboard,
-  isTyping, // New prop for typing indicator
+    messages,
+    settings,
+    formatTimestamp,
+    copyToClipboard,
+    isTyping,
 }) {
-  return (
-    <div className="flex-1 overflow-y-auto scroll-smooth">
-      <ToastContainer/>
-      {messages.length === 0 ? (
-        <div className="h-full flex items-center justify-center">
-          <div className="text-center space-y-4 px-4">
-            <h1
-              className={`text-4xl font-bold ${
-                isDarkMode ? "text-white/80" : "text-gray-800"
-              }`}
-            >
-              Enhanced ChatGPT Clone
-            </h1>
-            <p className={isDarkMode ? "text-white/60" : "text-gray-600"}>
-              Start a conversation by typing a message below.
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="w-full">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`border-b ${
-                isDarkMode
-                  ? `${
-                      msg.sender === "ai" ? "bg-[#444654]" : "bg-[#343541]"
-                    } border-black/10`
-                  : `${
-                      msg.sender === "ai" ? "bg-gray-50" : "bg-white"
-                    } border-gray-200`
-              }`}
-            >
-              <div className="max-w-3xl mx-auto flex p-6 gap-4">
-                <div className="w-8 h-8 flex-shrink-0">
-                  {msg.sender === "user" ? (
-                    <div className="w-8 h-8 rounded-full bg-[#5436DA] flex items-center justify-center">
-                      <User size={20} className="text-white" />
-                    </div>
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-[#11A37F] flex items-center justify-center">
-                      <Bot size={20} className="text-white" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`text-sm ${
-                        isDarkMode ? "text-white/60" : "text-gray-500"
-                      }`}
-                    >
-                      {msg.sender === "user" ? "You" : "Assistant"}
-                    </span>
-                    {settings.showTimestamp && (
-                      <span
-                        className={`text-xs ${
-                          isDarkMode ? "text-white/40" : "text-gray-400"
-                        }`}
-                      >
-                        {formatTimestamp(msg.timestamp)}
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    className={`overflow-hidden ${
-                      msg.error
-                        ? "text-red-500"
-                        : isDarkMode
-                        ? "text-white/90"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {settings.enableMarkdown ? (
-                      <ReactMarkdown
-                        className={`prose ${
-                          isDarkMode ? "prose-invert" : ""
-                        } max-w-none`}
-                      >
-                        {msg.text}
-                      </ReactMarkdown>
-                    ) : (
-                      msg.text
-                    )}
-                  </div>
-                  {msg.sender === "ai" && (
-                    <div className="flex gap-2 mt-2">
-                      <button
-                        onClick={() => {
-                          // Handle positive feedback
-                          toast.success("Thanks for your feedback!");
-                        }}
-                        className={`p-1 rounded-md text-sm flex items-center gap-1 ${
-                          isDarkMode
-                            ? "text-white/60 hover:bg-white/10"
-                            : "text-gray-500 hover:bg-gray-100"
-                        }`}
-                      >
-                        <ThumbsUp size={14} />
-                        Like
-                      </button>
-                      <button
-                        onClick={() => {
-                          // Handle negative feedback
-                          toast("Feedback noted", { icon: "👎" });
-                        }}
-                        className={`p-1 rounded-md text-sm flex items-center gap-1 ${
-                          isDarkMode
-                            ? "text-white/60 hover:bg-white/10"
-                            : "text-gray-500 hover:bg-gray-100"
-                        }`}
-                      >
-                        <ThumbsDown size={14} />
-                        Dislike
-                      </button>
-                    </div>
-                  )}
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      onClick={() => copyToClipboard(msg.text)}
-                      className={`p-1 rounded-md text-sm flex items-center gap-1 ${
-                        isDarkMode
-                          ? "text-white/60 hover:bg-white/10"
-                          : "text-gray-500 hover:bg-gray-100"
-                      }`}
-                    >
-                      <Copy size={14} />
-                      Copy
-                    </button>
-                    <button
-                      onClick={() => {
-                        const text = msg.text;
-                        const shareData = {
-                          title: "Chat Message",
-                          text: text,
-                        };
-                        if (navigator.share) {
-                          navigator.share(shareData);
-                        } else {
-                          copyToClipboard(text);
-                        }
-                      }}
-                      className={`p-1 rounded-md text-sm flex items-center gap-1 ${
-                        isDarkMode
-                          ? "text-white/60 hover:bg-white/10"
-                          : "text-gray-500 hover:bg-gray-100"
-                      }`}
-                    >
-                      <Share2 size={14} />
-                      Share
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+    const { colors } = useTheme(); // Use ThemeContext
 
-          {/* Typing Indicator */}
-          {isTyping && (
-            <div className="border-b">
-              <div className="max-w-3xl mx-auto flex p-6 gap-4">
-                <div className="w-8 h-8 flex-shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-[#11A37F] flex items-center justify-center">
-                    <Bot size={20} className="text-white" />
-                  </div>
+    return (
+        <div className="flex-1 overflow-y-auto scroll-smooth p-4" style={{ backgroundColor: colors.backgroundPrimary }}> {/* Added padding to ChatMessages container */}
+            {messages.length === 0 ? (
+                <div className="h-full flex items-center justify-center">
+                    <div className="text-center space-y-4 px-4">
+                        <h1 className={`text-4xl font-bold`} style={{ color: colors.textPrimary }}>
+                            JasGigli AI
+                        </h1>
+                        <p className={``} style={{ color: colors.textSecondary }}>
+                            Start a conversation by typing a message below. Select a tool from the sidebar.
+                        </p>
+                    </div>
                 </div>
-                <div className="flex-1">
-                  <span
-                    className={`text-sm ${
-                      isDarkMode ? "text-white/60" : "text-gray-500"
-                    }`}
-                  >
-                    Assistant is typing...
-                  </span>
+            ) : (
+                <div className="w-full space-y-4"> {/* Added space-y-4 for message spacing */}
+                    {messages.map((msg, index) => (
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`group`}
+                            style={{
+                                backgroundColor: msg.sender === 'ai' ? colors.backgroundSecondary : colors.backgroundPrimary,
+                            }}
+                        >
+                            <div className="mx-auto max-w-3xl px-4 py-4"> {/* Increased padding in message bubble */}
+                                <div className="flex gap-4">
+                                    <div className="w-8 h-8 flex-shrink-0">
+                                        {msg.sender === 'user' ? (
+                                            <div className="w-8 h-8 rounded-full" style={{ backgroundColor: colors.secondary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <User size={20} style={{ color: colors.backgroundPrimary }} />
+                                            </div>
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full" style={{ backgroundColor: colors.secondary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Bot size={20} style={{ color: colors.backgroundPrimary }} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className={`text-sm`} style={{ color: colors.textPrimary }}>
+                                                {msg.sender === 'user' ? 'You' : 'Assistant'}
+                                            </span>
+                                            {settings.showTimestamp && (
+                                                <span className={`text-xs`} style={{ color: colors.textAccent }}>
+                                                    {formatTimestamp(msg.timestamp)}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className={`prose`} style={{ color: colors.textPrimary }}>
+                                            {settings.enableMarkdown ? (
+                                                <ReactMarkdown className={``} style={{ color: colors.textPrimary }}>
+                                                    {msg.text}
+                                                </ReactMarkdown>
+                                            ) : (
+                                                msg.text
+                                            )}
+                                        </div>
+                                        {msg.sender === 'ai' && (
+                                            <div className="flex gap-2 mt-2">
+                                                <button
+                                                    onClick={() => copyToClipboard(msg.text)}
+                                                    className={`p-1.5 rounded-md hover:bg-opacity-10`}
+                                                    style={{
+                                                        color: colors.textSecondary,
+                                                        '&:hover': { backgroundColor: colors.backgroundSecondary, color: colors.textPrimary }
+                                                    }}
+                                                >
+                                                    <Copy size={16} />
+                                                </button>
+                                                <button
+                                                    className={`p-1.5 rounded-md hover:bg-opacity-10`}
+                                                    style={{
+                                                        color: colors.textSecondary,
+                                                        '&:hover': { backgroundColor: colors.backgroundSecondary, color: colors.textPrimary }
+                                                    }}
+                                                >
+                                                    <ThumbsUp size={16} />
+                                                </button>
+                                                <button
+                                                    className={`p-1.5 rounded-md hover:bg-opacity-10`}
+                                                    style={{
+                                                        color: colors.textSecondary,
+                                                        '&:hover': { backgroundColor: colors.backgroundSecondary, color: colors.textPrimary }
+                                                    }}
+                                                >
+                                                    <ThumbsDown size={16} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                    {isTyping && ( // Typing indicator
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`group`}
+                            style={{ backgroundColor: colors.backgroundSecondary }}
+                        >
+                            <div className="mx-auto max-w-3xl px-4 py-4">
+                                <div className="flex gap-4">
+                                    <div className="w-8 h-8 flex-shrink-0">
+                                        <div className="w-8 h-8 rounded-full" style={{ backgroundColor: colors.secondary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <Bot size={20} style={{ color: colors.backgroundPrimary, opacity: 0.6 }} /> {/* Opacity to indicate typing */}
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <div className={`text-sm`} style={{ color: colors.textPrimary, opacity: 0.6 }}> {/* Opacity for typing text */}
+                                            Assistant is typing...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
                 </div>
-              </div>
-            </div>
-          )}
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }

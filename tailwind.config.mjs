@@ -14,8 +14,12 @@ export default {
         "sidebar-black": "#202123",
         "main-gray": "#343541",
       },
+      animation: {
+        'bounce': 'bounce 1.5s infinite',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+      },
       fontFamily: {
-        // Optionally add a modern font like Inter
+        
         inter: ["Inter", "sans-serif"],
       },
     },

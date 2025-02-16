@@ -1,61 +1,122 @@
-// components/ChatInput.js
-import React from "react";
-import { Loader2, Send } from "lucide-react";
+import React, { useEffect, useState, useRef } from 'react';
+import { Send, Mic, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '@/app/context/ThemeContext'; // Import useTheme
 
 export default function ChatInput({
-  input,
-  setInput,
-  handleKeyDown,
-  sendMessage,
-  isLoading,
-  textareaRef,
-  isDarkMode,
-  settings,
+    input,
+    setInput,
+    handleKeyDown,
+    sendMessage,
+    isLoading,
+    textareaRef,
+    handleVoiceInput,
 }) {
-  return (
-    <div
-      className={`border-t p-4 ${
-        isDarkMode ? "border-white/20 bg-[#343541]" : "border-gray-200 bg-white"
-      }`}
-    >
-      <div className="max-w-3xl mx-auto relative">
-        <textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Send a message..."
-          className={`w-full resize-none rounded-lg border p-4 pr-12 focus:outline-none focus:ring-0 ${
-            isDarkMode
-              ? "bg-[#40414F] text-white border-white/20 focus:border-white/40"
-              : "bg-white text-gray-900 border-gray-300 focus:border-gray-400"
-          }`}
-          rows={1}
-          disabled={isLoading}
-        />
-        <button
-          onClick={sendMessage}
-          disabled={isLoading || !input.trim()}
-          className={`absolute right-3 bottom-3 p-1 rounded-lg ${
-            isDarkMode
-              ? "text-white/60 hover:text-white/90 disabled:text-white/40"
-              : "text-gray-400 hover:text-gray-600 disabled:text-gray-300"
-          } disabled:opacity-50`}
-        >
-          {isLoading ? (
-            <Loader2 className="w-6 h-6 animate-spin" />
-          ) : (
-            <Send className="w-6 h-6" />
-          )}
-        </button>
-      </div>
-      <p
-        className={`text-center text-xs mt-2 ${
-          isDarkMode ? "text-white/40" : "text-gray-500"
-        }`}
-      >
-        Model: {settings.model} • Temperature: {settings.temperature} • Max Tokens: {settings.maxTokens}
-      </p>
-    </div>
-  );
+    const [isListening, setIsListening] = useState(false);
+    const [recognition, setRecognition] = useState(null);
+    const { colors } = useTheme(); // Use ThemeContext
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    setInput(transcript);
+                    handleVoiceInput(transcript);
+                    setIsListening(false);
+                };
+
+                recognition.onerror = () => {
+                    setIsListening(false);
+                };
+
+                setRecognition(recognition);
+            }
+        }
+    }, []);
+
+    const startListening = () => {
+        if (recognition) {
+            setIsListening(true);
+            recognition.start();
+        }
+    };
+
+    return (
+        <div className={`border-t`} style={{ borderTopColor: colors.borderPrimary, backgroundColor: colors.backgroundSecondary }}>
+            <div className="mx-auto max-w-3xl relative px-4 py-3">
+                <motion.div
+                    className={`relative rounded-xl shadow-lg`}
+                    style={{
+                        backgroundColor: colors.backgroundPrimary,
+                        borderColor: colors.borderPrimary
+                    }}
+                    whileHover={{ scale: 1.01 }}
+                >
+                    <textarea
+                        ref={textareaRef}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Message ChatGPT..."
+                        className={`w-full resize-none rounded-xl p-4 pr-24 focus:outline-none focus:ring-0`}
+                        style={{
+                            backgroundColor: colors.backgroundPrimary,
+                            color: colors.textPrimary,
+                            '::placeholder': { color: colors.textAccent } // Placeholder color
+                        }}
+                        rows={1}
+                        disabled={isLoading}
+                    />
+                    <div className="absolute right-3 bottom-3 flex gap-2">
+                        <button
+                            onClick={startListening}
+                            disabled={isListening || isLoading}
+                            className={`p-2 rounded-lg transition-colors`}
+                            style={{
+                                color: colors.textSecondary,
+                                '&:hover': { color: colors.textPrimary },
+                            }}
+                        >
+                            <AnimatePresence>
+                                {isListening && (
+                                    <motion.span
+                                        className="absolute inset-0 rounded-full bg-red-500/20"
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{ repeat: Infinity, duration: 1 }}
+                                    />
+                                )}
+                            </AnimatePresence>
+                            <Mic size={20} />
+                        </button>
+                        <button
+                            onClick={sendMessage}
+                            disabled={isLoading || !input.trim()}
+                            className={`p-2 rounded-lg transition-colors`}
+                            style={{
+                                color: colors.textSecondary,
+                                '&:hover': { color: colors.textPrimary },
+                                '&:disabled': { color: colors.textAccent },
+                            }}
+                        >
+                            {isLoading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" style={{ color: colors.textPrimary }} />
+                            ) : (
+                                <Send className="w-5 h-5" style={{ color: colors.textPrimary }} />
+                            )}
+                        </button>
+                    </div>
+                </motion.div>
+                <p className={`text-center text-xs mt-2`} style={{ color: colors.textAccent }}>
+                    ChatGPT Clone • Experimental UI
+                </p>
+            </div>
+        </div>
+    );
 }

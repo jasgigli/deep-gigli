@@ -1,33 +1,26 @@
-my-next-app/
-├── app/
-│   ├── api/
-│   │   ├── auth/
-│   │   │   └── [...nextauth].js      // Authentication endpoints (NextAuth.js)
-│   │   ├── chat/
-│   │   │   └── route.js              // Chat API route
-│   │   ├── summarize/
-│   │   │   └── route.js              // Summarization endpoint (Google Gemini)
-│   │   ├── search/
-│   │   │   └── route.js              // Semantic search endpoint (DeepSeek)
-│   │   └── analytics/
-│   │       └── route.js              // Analytics API route
-│   └── page.js                     // Main page assembling components
+jasgigli-ai/
+├── api/
+│   ├── chat/
+│   │   └── route.js       // API endpoint for chat
+│   ├── summarize/
+│   │   └── route.js      // API endpoint for summarization
+│   ├── translate/
+│   │   └── route.js      // API endpoint for translation
 ├── components/
-│   ├── AnalyticsDashboard.jsx      // Real-time analytics & metrics
-│   ├── AuthModal.jsx               // User authentication modal
-│   ├── ChatHeader.jsx              // Top header bar (includes advanced tools button)
-│   ├── ChatInput.jsx               // Message input area
-│   ├── ChatMessages.jsx            // Chat messages (with sentiment & feedback)
-│   ├── Collaboration.jsx           // Real-time collaboration component (via websockets)
-│   ├── AdvancedToolsModal.jsx      // Advanced tools: Summarize, Search, Analytics, etc.
-│   ├── Sidebar.jsx                 // Left sidebar (conversations, search, rename, settings)
-│   └── SettingsModal.jsx           // App settings modal
-├── utils/
-│   ├── analytics.js                // Analytics data utilities
-│   ├── sentiment.js                // Sentiment analysis functions
-│   └── translation.js              // Translation functions
-├── styles/
-│   └── globals.css                 // Global styles & markdown styling
-├── tailwind.config.js              // Tailwind configuration
-├── package.json
-└── .env.local                      // API keys and secrets
+│   ├── ui/               // Reusable UI components
+│   │   └── Dropdown.jsx
+│   ├── layouts/          // Layout components
+│   │   ├── Sidebar.jsx
+│   │   ├── ChatHeader.jsx
+│   ├── panels/           // Tool-specific panels
+│   │   ├── ChatPanel.jsx
+│   │   ├── SummarizePanel.jsx
+│   │   ├── TranslatePanel.jsx
+│   ├── ChatMessages.jsx
+│   ├── ChatInput.jsx
+│   ├── SettingsModal.jsx
+│   ├── ToolSelector.jsx
+│   ├── VoiceInputOutput.jsx
+└── globals.css         // Global CSS styles
+├── loading.js          // Loading component
+└── page.js             // Home page - main application container
