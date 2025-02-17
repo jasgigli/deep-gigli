@@ -4,13 +4,15 @@ import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/Button"; // Assuming Button component is in "@/components/ui"
 import { Dropdown } from "@/components/ui/Dropdown"; // Assuming Dropdown component is in "@/components/ui"
 import { Input } from "@/components/ui/Input"; // Assuming Input component is in "@/components/ui"
+import { useTheme } from "@/app/context/ThemeContext.js"
 
 export default function SettingsModal({
     settings,
     setSettings,
-    isDarkMode,
     setShowSettings,
 }) {
+    const { isDarkMode } = useTheme(); // Use ThemeContext for styling
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div

@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Send, Mic, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from "../../context/ThemeContext.js"; // Import useTheme
 
 export default function ChatInput({
     input,
@@ -10,7 +11,6 @@ export default function ChatInput({
     sendMessage,
     isLoading,
     textareaRef,
-    isDarkMode,
 }) {
     const [isListening, setIsListening] = useState(false);
     const [recognition, setRecognition] = useState(null);
@@ -51,6 +51,8 @@ export default function ChatInput({
         }
     };
 
+    // --- Theme Context ---
+    const { isDarkMode } = useTheme(); // Use ThemeContext for styling
 
     return (
         <div className={`border-t ${isDarkMode ? 'border-[#40414F] bg-[#343541]' : 'border-gray-200 bg-white'}`}>
@@ -120,7 +122,7 @@ export default function ChatInput({
                 <p className={`text-center text-xs mt-2 ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
-                    JasGigli AI • Experimental UI
+                    JasGigli AI • A sigbling of DeepSeek
                 </p>
             </div>
         </div>

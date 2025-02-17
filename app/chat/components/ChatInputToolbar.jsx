@@ -2,8 +2,11 @@
 import React from "react";
 import { FileText, Search, Globe, Smile } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTheme } from "../../context/ThemeContext.js";
 
-export default function ChatInputToolbar({ isDarkMode, onSummarize, onSearch, onTranslate, onSentiment }) {
+export default function ChatInputToolbar({ onSummarize, onSearch, onTranslate, onSentiment }) {
+    const { isDarkMode } = useTheme(); // Use ThemeContext for styling
+
     return (
         <motion.div
             className="flex justify-around py-2"

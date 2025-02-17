@@ -9,8 +9,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
     return (
         <html lang="en">
-            <body>
-                <ThemeProvider> {/* Wrap the entire app with ThemeProvider */}
+            <body className="font-inter"> {/* Apply default font here */}
+                <ThemeProvider>
                     {children}
                 </ThemeProvider>
             </body>

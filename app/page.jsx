@@ -6,13 +6,14 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 
 // Import Components
-import Sidebar from "@/components/layouts/Sidebar"
-import Header from "@/components/layouts/Header"
-import ChatPanel from "./chat/components/ChatPanel"
-import SummarizePanel from "./summarize/components/SummarizePanel"
-import TranslatePanel from "./translate/components/TranslatePanel"
+import Sidebar from "@/components/layouts/Sidebar";
+import Header from "@/components/layouts/Header";
+import ChatPanel from "@/app/chat/components/ChatPanel";
+import SummarizePanel from "@/app/summarize/components/SummarizePanel";
+import TranslatePanel from "@/app/translate/components/TranslatePanel";
 import SettingsModal from "@/components/common/SettingModal"
-import ToolSelector from "@/components/common/ToolSelector"
+import ToolSelector from "@/components/common/ToolSelector";
+import { useTheme } from "./context/ThemeContext.js"
 
 export default function Home() {
     // --- State Management ---
@@ -38,22 +39,11 @@ export default function Home() {
 
     const textareaRef = useRef(null);
 
-    // --- Theme Context (Assume you have ThemeContext setup) ---
-    // const { isDarkMode, toggleTheme } = useTheme(); // If you are using ThemeContext
-
-    const [isDarkMode, setIsDarkMode] = useState(false); // Example theme state, replace with context if using
-    const toggleTheme = () => {
-        setIsDarkMode(!isDarkMode);
-    };
-
+    // --- Theme Context ---
+    const { isDarkMode, toggleDarkMode } = useTheme(); // Use ThemeContext
 
     // --- Load and Save Settings/Conversations ---
     useEffect(() => {
-        // Load theme from local storage
-        const savedTheme = localStorage.getItem("theme");
-        if (savedTheme) {
-            setIsDarkMode(savedTheme === "dark");
-        }
         // Load settings from local storage
         const savedSettings = localStorage.getItem("settings");
         if (savedSettings) {
@@ -66,9 +56,6 @@ export default function Home() {
         }
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem("theme", isDarkMode ? "dark" : "light");
-    }, [isDarkMode]);
 
     useEffect(() => {
         localStorage.setItem("settings", JSON.stringify(settings));
@@ -287,15 +274,9 @@ export default function Home() {
             <div className={`flex h-screen overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
                 {/* Sidebar */}
                 <Sidebar
-                    isDarkMode={isDarkMode}
-                    toggleTheme={toggleTheme}
                     conversations={conversations}
                     currentConversation={currentConversation}
-                    setCurrentConversation={(conv) => {
-                        setCurrentConversation(conv);
-                        setMessages(conv.messages);
-                        setIsMobileSidebarOpen(false);
-                    }}
+                    setCurrentConversation={(conv) => { setCurrentConversation(conv); setMessages(conv.messages); setIsMobileSidebarOpen(false); }}
                     createNewConversation={createNewConversation}
                     deleteConversation={deleteConversation}
                     setShowSettings={setShowSettingsModal}
@@ -303,17 +284,19 @@ export default function Home() {
                     setIsMobileSidebarOpen={setIsMobileSidebarOpen}
                     selectedTool={selectedTool}
                     setSelectedTool={setSelectedTool}
+                    setConversations={setConversations} // Pass setConversations
                 />
 
                 {/* Main Content */}
                 <main className={`flex-1 flex flex-col relative ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
                     {/* Header */}
                     <Header
-                        isDarkMode={isDarkMode}
                         saveConversation={saveConversation}
                         exportConversation={exportConversation}
                         regenerateResponse={regenerateResponse}
                         settings={settings}
+                        isMobileSidebarOpen={isMobileSidebarOpen}
+                        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
                     />
 
                     {/* Tool Selector */}
@@ -330,7 +313,6 @@ export default function Home() {
                         {selectedTool === "chat" && (
                             <ChatPanel
                                 messages={messages}
-                                isDarkMode={isDarkMode}
                                 settings={settings}
                                 formatTimestamp={formatTimestamp}
                                 copyToClipboard={copyToClipboard}
@@ -368,7 +350,6 @@ export default function Home() {
                         <SettingsModal
                             settings={settings}
                             setSettings={setSettings}
-                            isDarkMode={isDarkMode}
                             setShowSettings={setShowSettingsModal}
                         />
                     )}

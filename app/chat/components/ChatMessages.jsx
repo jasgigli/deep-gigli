@@ -3,10 +3,10 @@ import React, { useRef, useEffect } from 'react';
 import { User, Bot, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
+import { useTheme } from "../../context/ThemeContext.js";
 
 export default function ChatMessages({
     messages,
-    isDarkMode,
     settings,
     formatTimestamp,
     copyToClipboard,
@@ -17,6 +17,9 @@ export default function ChatMessages({
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isTyping]); // Scroll to bottom on new messages or typing
+
+    // --- Theme Context ---
+    const { isDarkMode } = useTheme(); // Use ThemeContext for styling
 
     return (
         <div className="flex-1 overflow-y-auto scroll-smooth p-4">

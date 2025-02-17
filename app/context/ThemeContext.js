@@ -6,72 +6,70 @@ const ThemeContext = createContext();
 
 const ThemeProvider = ({ children }) => {
     const [darkMode, setDarkMode] = useState(false); // Default to light mode
-    const [colors, setColors] = useState({
+    const initialColors = {
         lightMode: {
-            // Serene Ocean Light Theme Palette (Psychologically Relaxing & Attractive)
-            primary: '#64B5F6',          // Soft Blue (Light Blue 300) - Calming Primary
-            primaryHover: '#42A5F5',
-            secondary: '#81C784',        // Sea Green (Green 300) - Natural & Harmonious
-            secondaryHover: '#66BB6A',
-            accent: '#FFD54F',           // Warm Sand (Yellow 300) - Subtle & Gentle Accent
-            accentHover: '#FFCA28',
+            // Soothing Pastels & Earthy Tones - Light Theme
+            primary: '#A0CED9',          // Soft Sky Blue - Calming Primary
+            primaryHover: '#7CB9C8',
+            secondary: '#C5E8B7',        // Pale Sage Green - Natural & Harmonious
+            secondaryHover: '#B2D6A4',
+            accent: '#FFDB58',           // Soft Gold - Gentle & Warm Accent
+            accentHover: '#FDD035',
 
-            backgroundPrimary: '#F8F9FA', // Off-White (Gray 50) - Clean Main Background
-            backgroundSecondary: '#ECEFF1', // Light Gray (Blue Gray 100) - Card Backgrounds
-            backgroundAccent: '#E0E0E0',  // Very Light Gray (Gray 200) - Subtle Accents
+            backgroundPrimary: '#F5F5F5', // Light Gray - Soft Main Background
+            backgroundSecondary: '#FFFFFF', // White - Clean Card Backgrounds
+            backgroundAccent: '#EEEEEE',  // Very Light Gray - Subtle Accents
 
-            textPrimary: '#424242',      // Dark Gray (Gray 800) - Readable Main Text
-            textSecondary: '#757575',    // Medium Gray (Gray 600) - Muted Secondary Text
-            textAccent: '#9E9E9E',       // Light Gray (Gray 500) - Hint/Less Important Text
+            textPrimary: '#333333',      // Dark Charcoal - Readable Main Text
+            textSecondary: '#555555',    // Medium Gray - Muted Secondary Text
+            textAccent: '#777777',       // Light Gray - Hint/Less Important Text
 
-            borderPrimary: '#BDBDBD',    // Light Gray (Gray 400) - Soft Borders
-            borderSecondary: '#CFD8DC',  // Very Light Gray (Blue Gray 200) - Lighter Borders
+            borderPrimary: '#DDDDDD',    // Light Gray - Soft Borders
+            borderSecondary: '#EEEEEE',  // Very Light Gray - Lighter Borders
 
-            success: '#4CAF50',          // Green 500 - Standard Success Green
-            error: '#F44336',            // Red 500 - Standard Error Red
-            warning: '#FFC107',          // Amber 500 - Standard Warning Amber
-            info: '#03A9F4',             // Light Blue 500 - Standard Info Light Blue
+            success: '#4CAF50',          // Standard Success Green
+            error: '#F44336',            // Standard Error Red
+            warning: '#FFC107',          // Standard Warning Amber
+            info: '#03A9F4',             // Standard Info Light Blue
         },
         darkMode: {
-            // Serene Ocean Dark Theme Palette (Relaxing & Attractive Dark Mode)
-            primary: '#1E88E5',          // Deep Blue (Blue 600) - Dark Mode Primary
-            primaryHover: '#1976D2',
-            secondary: '#26A69A',        // Teal Green (Teal 600) - Sophisticated Dark Secondary
-            secondaryHover: '#009688',
-            accent: '#FFEE58',           // Moon Yellow (Yellow A200) - Soft Dark Mode Accent
-            accentHover: '#FDD835',
+            // Deep Ocean & Twilight - Dark Theme
+            primary: '#5DADE2',          // Deep Sky Blue - Dark Mode Primary
+            primaryHover: '#4A9AD4',
+            secondary: '#82E0AA',        // Mint Green - Vibrant Dark Secondary
+            secondaryHover: '#69D19A',
+            accent: '#FFC300',           // Bright Amber - Strong Dark Mode Accent
+            accentHover: '#FDB813',
 
-            backgroundPrimary: '#263238', // Dark Navy (Blue Gray 900) - Deep Dark Background
-            backgroundSecondary: '#37474F', // Darker Gray (Blue Gray 800) - Dark Card Backgrounds
-            backgroundAccent: '#455A64',  // Even Darker Gray (Blue Gray 700) - Dark Subtle Accents
+            backgroundPrimary: '#1E272E', // Dark Navy - Deep Dark Background
+            backgroundSecondary: '#2C3A47', // Darker Gray - Dark Card Backgrounds
+            backgroundAccent: '#34495E',  // Even Darker Gray - Dark Subtle Accents
 
-            textPrimary: '#ECEFF1',      // Off-White (Blue Gray 100) - Light Text for Dark Mode
-            textSecondary: '#B0BEC5',    // Light Gray (Blue Gray 300) - Muted Dark Mode Text
-            textAccent: '#90A4AE',       // Medium Gray (Blue Gray 400) - Dark Hint Text
+            textPrimary: '#ECF0F1',      // Off-White - Light Text for Dark Mode
+            textSecondary: '#D0D3D4',    // Light Gray - Muted Dark Mode Text
+            textAccent: '#AEB6BF',       // Medium Gray - Dark Hint Text
 
-            borderPrimary: '#546E7A',    // Dark Gray (Blue Gray 600) - Dark Mode Borders
-            borderSecondary: '#607D8B',  // Lighter Dark Gray (Blue Gray 500) - Lighter Dark Borders
+            borderPrimary: '#456990',    // Dark Blue Gray - Dark Mode Borders
+            borderSecondary: '#566573',  // Lighter Dark Gray - Lighter Dark Borders
 
-            success: '#4CAF50',          // Green 500 - Keep Success Green
-            error: '#F44336',            // Red 500 - Keep Error Red
-            warning: '#FFC107',          // Amber 500 - Keep Warning Amber
-            info: '#03A9F4',             // Light Blue 500 - Keep Info Light Blue
+            success: '#4CAF50',          // Keep Success Green
+            error: '#F44336',            // Keep Error Red
+            warning: '#FFC107',          // Keep Warning Amber
+            info: '#03A9F4',             // Keep Info Light Blue
         },
-    });
+    };
+    const [colors, setColors] = useState(initialColors);
 
     useEffect(() => {
-        // Load theme from localStorage on initial load
         const storedTheme = localStorage.getItem('themeMode');
         if (storedTheme) {
             setDarkMode(storedTheme === 'dark');
         } else {
-            // Default to light mode if no theme in localStorage
             setDarkMode(false);
         }
     }, []);
 
     useEffect(() => {
-        // Save theme to localStorage whenever it changes
         localStorage.setItem('themeMode', darkMode ? 'dark' : 'light');
     }, [darkMode]);
 
@@ -80,12 +78,7 @@ const ThemeProvider = ({ children }) => {
     };
 
     const currentColors = darkMode ? colors.darkMode : colors.lightMode;
-
-    const theme = {
-        darkMode,
-        toggleDarkMode,
-        colors: currentColors,
-    };
+    const theme = { darkMode, toggleDarkMode, colors: currentColors };
 
     return (
         <ThemeContext.Provider value={theme}>
@@ -95,5 +88,4 @@ const ThemeProvider = ({ children }) => {
 };
 
 const useTheme = () => useContext(ThemeContext);
-
 export { ThemeContext, ThemeProvider, useTheme };

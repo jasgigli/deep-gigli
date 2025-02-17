@@ -2,8 +2,11 @@
 import React from "react";
 import { Button } from "@/components/ui/Button"; // Assuming Button component is in "@/components/ui"
 import { Loader2 } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext.js"
 
 export default function SummarizePanel({ summarizeConversation, summaryResult, isLoading }) {
+    const { isDarkMode } = useTheme(); // Use ThemeContext for styling
+
     return (
         <div className="p-6 flex flex-col items-center justify-center h-full">
             <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Summarize Conversation</h2>

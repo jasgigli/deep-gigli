@@ -3,10 +3,10 @@ import React from "react";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 import ChatInputToolbar from "./ChatInputToolbar"; // Import toolbar
+import { useTheme } from "../../context/ThemeContext.js";
 
 export default function ChatPanel({
     messages,
-    isDarkMode,
     settings,
     formatTimestamp,
     copyToClipboard,
@@ -18,11 +18,12 @@ export default function ChatPanel({
     isLoading,
     textareaRef,
 }) {
+    const { isDarkMode } = useTheme(); // Use ThemeContext for styling
+
     return (
         <div className="flex flex-col h-full">
             <ChatMessages
                 messages={messages}
-                isDarkMode={isDarkMode}
                 settings={settings}
                 formatTimestamp={formatTimestamp}
                 copyToClipboard={copyToClipboard}
@@ -39,7 +40,6 @@ export default function ChatPanel({
                     sendMessage={sendMessage}
                     isLoading={isLoading}
                     textareaRef={textareaRef}
-                    isDarkMode={isDarkMode}
                 />
             </div>
         </div>
