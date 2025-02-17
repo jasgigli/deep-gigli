@@ -6,7 +6,6 @@ jasgigli-ai/
 │   ├── chat/
 │   │   ├── components/
 │   │   │   ├── ChatInput.jsx
-│   │   │   ├── ChatInputToolbar.jsx
 │   │   │   ├── ChatMessages.jsx
 │   │   │   └── ChatPanel.jsx
 │   │   └── page.js       

@@ -1,23 +1,39 @@
 "use client";
 
 // components/ui/Dropdown.jsx
-import React from 'react';
+import React from "react";
+import { useTheme } from "@/app/context/ThemeContext.js";
 
-const Dropdown = ({ options, value, onChange, className = '', ...props }) => {
-    return (
-        <select
-            value={value}
-            onChange={onChange}
-            className={`rounded-md border border-gray-300 bg-white text-gray-800 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${className}`}
-            {...props}
+const Dropdown = ({ options, value, onChange, className = "", ...props }) => {
+  const theme = useTheme(); // Corrected destructuring
+  const isDarkMode = theme.darkMode;
+
+  return (
+    <select
+      value={value}
+      onChange={onChange}
+      className={`rounded-md border shadow-sm focus:ring-2 focus:ring-${theme.colors.primary} focus:border-${theme.colors.primary} focus:outline-none ${className}`}
+      style={{
+        backgroundColor: theme.colors.backgroundSecondary,
+        color: theme.colors.textPrimary,
+        borderColor: theme.colors.borderPrimary,
+      }}
+      {...props}
+    >
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+          style={{
+            backgroundColor: theme.colors.backgroundSecondary,
+            color: theme.colors.textPrimary,
+          }}
         >
-            {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                    {option.label}
-                </option>
-            ))}
-        </select>
-    );
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
 };
 
 export { Dropdown };

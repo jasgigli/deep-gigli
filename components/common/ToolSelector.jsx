@@ -1,7 +1,7 @@
 "use client";
 // components/common/ToolSelector.jsx
 import React from "react";
-import { Dropdown } from "@/components/ui/Dropdown"; // Assuming Dropdown component is in "@/components/ui"
+import { Dropdown } from "@/components/ui/Dropdown"; 
 
 export default function ToolSelector({ selectedTool, setSelectedTool }) {
     return (

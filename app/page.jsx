@@ -288,7 +288,9 @@ export default function Home() {
                 />
 
                 {/* Main Content */}
-                <main className={`flex-1 flex flex-col relative ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+                {/* Main Content */}
+                <main className={`flex-1 flex flex-col relative ${isDarkMode ? "bg-gray-800" : "bg-gray-100"}`}>
+
                     {/* Header */}
                     <Header
 
@@ -296,7 +298,7 @@ export default function Home() {
                         setIsMobileSidebarOpen={setIsMobileSidebarOpen}
                         isMobileSidebarOpen={isMobileSidebarOpen}
                         settings={settings}
-                        
+
                     />
 
                     {/* Tool Selector */}
