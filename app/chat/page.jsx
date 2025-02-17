@@ -1,8 +1,9 @@
-// app/chat/page.js
-import ChatPanel from './components/ChatPanel';
+"use client";
+
+import ChatPanel from "./components/ChatPanel";
 
 const ChatPageRoute = () => {
-    return <ChatPanel />;
+  return <ChatPanel />;
 };
 
 export default ChatPageRoute;

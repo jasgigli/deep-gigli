@@ -1,5 +1,4 @@
 "use client"; // Make it a client component
-
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
 const ThemeContext = createContext();
@@ -9,53 +8,53 @@ const ThemeProvider = ({ children }) => {
     const initialColors = {
         lightMode: {
             // Soothing Pastels & Earthy Tones - Light Theme
-            primary: '#A0CED9',          // Soft Sky Blue - Calming Primary
+            primary: '#A0CED9',
             primaryHover: '#7CB9C8',
-            secondary: '#C5E8B7',        // Pale Sage Green - Natural & Harmonious
+            secondary: '#C5E8B7',
             secondaryHover: '#B2D6A4',
-            accent: '#FFDB58',           // Soft Gold - Gentle & Warm Accent
+            accent: '#FFDB58',
             accentHover: '#FDD035',
 
-            backgroundPrimary: '#F5F5F5', // Light Gray - Soft Main Background
-            backgroundSecondary: '#FFFFFF', // White - Clean Card Backgrounds
-            backgroundAccent: '#EEEEEE',  // Very Light Gray - Subtle Accents
+            backgroundPrimary: '#F5F5F5',
+            backgroundSecondary: '#FFFFFF',
+            backgroundAccent: '#EEEEEE',
 
-            textPrimary: '#333333',      // Dark Charcoal - Readable Main Text
-            textSecondary: '#555555',    // Medium Gray - Muted Secondary Text
-            textAccent: '#777777',       // Light Gray - Hint/Less Important Text
+            textPrimary: '#333333',
+            textSecondary: '#555555',
+            textAccent: '#777777',
 
-            borderPrimary: '#DDDDDD',    // Light Gray - Soft Borders
-            borderSecondary: '#EEEEEE',  // Very Light Gray - Lighter Borders
+            borderPrimary: '#DDDDDD',
+            borderSecondary: '#EEEEEE',
 
-            success: '#4CAF50',          // Standard Success Green
-            error: '#F44336',            // Standard Error Red
-            warning: '#FFC107',          // Standard Warning Amber
-            info: '#03A9F4',             // Standard Info Light Blue
+            success: '#4CAF50',
+            error: '#F44336',
+            warning: '#FFC107',
+            info: '#03A9F4',
         },
         darkMode: {
             // Deep Ocean & Twilight - Dark Theme
-            primary: '#5DADE2',          // Deep Sky Blue - Dark Mode Primary
+            primary: '#5DADE2',
             primaryHover: '#4A9AD4',
-            secondary: '#82E0AA',        // Mint Green - Vibrant Dark Secondary
+            secondary: '#82E0AA',
             secondaryHover: '#69D19A',
-            accent: '#FFC300',           // Bright Amber - Strong Dark Mode Accent
+            accent: '#FFC300',
             accentHover: '#FDB813',
 
-            backgroundPrimary: '#1E272E', // Dark Navy - Deep Dark Background
-            backgroundSecondary: '#2C3A47', // Darker Gray - Dark Card Backgrounds
-            backgroundAccent: '#34495E',  // Even Darker Gray - Dark Subtle Accents
+            backgroundPrimary: '#1E272E',
+            backgroundSecondary: '#2C3A47',
+            backgroundAccent: '#34495E',
 
-            textPrimary: '#ECF0F1',      // Off-White - Light Text for Dark Mode
-            textSecondary: '#D0D3D4',    // Light Gray - Muted Dark Mode Text
-            textAccent: '#AEB6BF',       // Medium Gray - Dark Hint Text
+            textPrimary: '#ECF0F1',
+            textSecondary: '#D0D3D4',
+            textAccent: '#AEB6BF',
 
-            borderPrimary: '#456990',    // Dark Blue Gray - Dark Mode Borders
-            borderSecondary: '#566573',  // Lighter Dark Gray - Lighter Dark Borders
+            borderPrimary: '#456990',
+            borderSecondary: '#566573',
 
-            success: '#4CAF50',          // Keep Success Green
-            error: '#F44336',            // Keep Error Red
-            warning: '#FFC107',          // Keep Warning Amber
-            info: '#03A9F4',             // Keep Info Light Blue
+            success: '#4CAF50',
+            error: '#F44336',
+            warning: '#FFC107',
+            info: '#03A9F4',
         },
     };
     const [colors, setColors] = useState(initialColors);
@@ -78,14 +77,20 @@ const ThemeProvider = ({ children }) => {
     };
 
     const currentColors = darkMode ? colors.darkMode : colors.lightMode;
-    const theme = { darkMode, toggleDarkMode, colors: currentColors };
-
+    const theme = { darkMode, toggleDarkMode, colors: currentColors, initialColors }; // Include initialColors in theme
     return (
-        <ThemeContext.Provider value={theme}>
+        <ThemeContext.Provider value={{ theme }}> {/* Corrected value prop */}
             {children}
         </ThemeContext.Provider>
     );
 };
 
-const useTheme = () => useContext(ThemeContext);
+const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        throw new Error("useTheme must be used within a ThemeProvider");
+    }
+    return context.theme; // Access theme from context
+};
+
 export { ThemeContext, ThemeProvider, useTheme };
