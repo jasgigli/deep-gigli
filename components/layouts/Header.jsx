@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { useTheme } from "@/app/context/ThemeContext.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from 'next/navigation';
-// import AuthModal from "@/components/common/AuthModal"; // Removed AuthModal import
 
+// import AuthModal from "@/components/common/AuthModal"; // Removed AuthModal import
+const currentVersion = "0.1.0";
 export default function Header({
     saveConversation,
     exportConversation,
@@ -50,8 +51,8 @@ export default function Header({
     };
 
     const handleAboutAction = () => {
-        alert('About action (replace with your about page/modal)');
         setIsDropdownOpen(false);
+        router.push('/about'); 
     };
 
     // Conditional rendering for SSR safety
@@ -71,9 +72,11 @@ export default function Header({
             className={`sticky top-0 z-20 bg-opacity-95 backdrop-blur-lg border-b transition-colors duration-200  ${ // Apply theme colors like Sidebar
                 darkMode ? 'bg-dark-backgroundPrimary text-dark-textPrimary border-dark-borderPrimary' : 'bg-light-backgroundPrimary text-light-textPrimary border-light-borderPrimary'
             }`}
+            
         >
             <div className="container max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
+                   
                     {/* Mobile Menu Button */}
                     <div className="md:hidden">
                         <Button
@@ -101,6 +104,10 @@ export default function Header({
 
                     {/* Right Side Controls - No Theme Toggle Button */}
                     <nav className="hidden md:flex items-center space-x-2 lg:space-x-4">
+
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">
+    Version: <span class="text-blue-500 font-semibold">{currentVersion}</span>
+</p>
 
 
                         {/* User Dropdown Button */}

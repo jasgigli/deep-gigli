@@ -32,13 +32,13 @@ export default function ChatInput({
                 recognition.onresult = (event) => {
                     const transcript = event.results[0][0].transcript;
                     setInput(transcript);
-                    voiceInputButtonRef.current?.focus(); // Refocus button after voice input
+                    voiceInputButtonRef.current?.focus(); 
                 };
 
                 recognition.onerror = (event) => {
                     console.error("Speech recognition error", event.error);
                     setIsListening(false);
-                    voiceInputButtonRef.current?.focus(); // Refocus button on error
+                    voiceInputButtonRef.current?.focus(); 
                 };
 
                 setRecognition(recognition);
@@ -123,7 +123,7 @@ export default function ChatInput({
                 <p className={`text-center text-xs mt-2 ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-500'
                 }`}>
-                    JasGigli AI • A sigbling of DeepSeek
+                  JasGigli AI • AI enhances learning, but human judgment is key. Verify thoughtfully
                 </p>
             </div>
         </div>

@@ -1,7 +1,7 @@
 // app/(app)/chat/components/ChatPanel.jsx
 import React from "react";
-import ChatMessages from "@/app/(app)/chat/components/ChatMessages";
-import ChatInput from "@/app/(app)/chat/components/ChatInput";
+import ChatMessages from "@/app/chat/components/ChatMessages";
+import ChatInput from "@/app/chat/components/ChatInput";
 
 export default function ChatPanel({
   messages,
