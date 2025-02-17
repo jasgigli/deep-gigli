@@ -1,3 +1,4 @@
+"use client";
 // app/chat/components/ChatMessages.jsx
 import React, { useRef, useEffect } from 'react';
 import { User, Bot, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';

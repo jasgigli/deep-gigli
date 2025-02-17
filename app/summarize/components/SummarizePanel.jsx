@@ -1,3 +1,4 @@
+"use client";
 // app/summarize/components/SummarizePanel.jsx
 import React from "react";
 import { Button } from "@/components/ui/Button"; // Assuming Button component is in "@/components/ui"

@@ -1,3 +1,5 @@
+"use client";
+
 // components/ui/Input.jsx
 import React from 'react';
 

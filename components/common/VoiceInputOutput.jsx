@@ -1,3 +1,4 @@
+"use client";
 // components/common/VoiceInputOutput.jsx
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button"; // Assuming Button component is in "@/components/ui"

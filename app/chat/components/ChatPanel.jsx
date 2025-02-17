@@ -1,3 +1,4 @@
+"use client";
 // app/chat/components/ChatPanel.jsx
 import React from "react";
 import ChatMessages from "./ChatMessages";

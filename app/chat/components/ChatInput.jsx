@@ -1,3 +1,4 @@
+"use client";
 // app/chat/components/ChatInput.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { Send, Mic, Loader2 } from 'lucide-react';

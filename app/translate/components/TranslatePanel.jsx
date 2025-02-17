@@ -1,3 +1,4 @@
+"use client";
 // app/translate/components/TranslatePanel.jsx
 import React from "react";
 import { Input } from "@/components/ui/Input"; // Assuming Input component is in "@/components/ui"

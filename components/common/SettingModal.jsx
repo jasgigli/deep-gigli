@@ -1,3 +1,4 @@
+"use client";
 // components/common/SettingsModal.jsx
 import React from "react";
 import { toast } from "react-hot-toast";

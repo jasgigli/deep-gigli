@@ -5,7 +5,7 @@ import {
     RefreshCw, Save, Download, Menu, User, Settings, LogOut, LogIn, HelpCircle, Info
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useTheme } from "@/app/context/ThemeContext.js";
+import { useTheme } from "@/app/context/ThemeContext.js";   
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from 'next/navigation';
 
@@ -18,7 +18,6 @@ export default function ModernHeader({
     setIsMobileSidebarOpen,
     setShowSettings,
     isLoggedIn = false,
-    // createNewConversation, // Removed as it's not used in Header
     currentConversation,
 }) {
     const { darkMode, colors } = useTheme();
@@ -55,12 +54,23 @@ export default function ModernHeader({
         setIsDropdownOpen(false);
     };
 
+    // Conditional rendering for SSR safety
+    if (!colors) {
+        return (
+            <header className="sticky top-0 z-20 border-b bg-gray-100 dark:bg-gray-900 border-gray-200 dark:border-gray-700 h-16 flex items-center px-4 sm:px-6 lg:px-8">
+                <div className="container max-w-full mx-auto">
+                    <span className="font-bold text-xl">JasGigli AI</span>
+                </div>
+            </header>
+        );
+    }
+
 
     return (
         <header
-            className={`sticky top-0 z-20 bg-opacity-95 backdrop-blur-lg border-b transition-colors duration-200 ${
-                darkMode ? colors?.darkMode?.backgroundSecondary : colors?.lightMode?.backgroundSecondary
-            } ${darkMode ? colors?.darkMode?.borderPrimary : colors?.lightMode?.borderPrimary}`}
+            className={`sticky top-0 z-20 bg-opacity-95 backdrop-blur-lg border-b transition-colors duration-200  ${ // Apply theme colors like Sidebar
+                darkMode ? 'bg-dark-backgroundPrimary text-dark-textPrimary border-dark-borderPrimary' : 'bg-light-backgroundPrimary text-light-textPrimary border-light-borderPrimary'
+            }`}
         >
             <div className="container max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
@@ -71,7 +81,7 @@ export default function ModernHeader({
                             size="icon"
                             onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
                             aria-label="Toggle sidebar"
-                            className="text-gray-500 hover:text-gray-700"
+                            className={`hover:text-gray-700 ${darkMode ? 'text-white hover:text-black' : 'text-gray-500'}`}
                         >
                             <Menu className="h-6 w-6" />
                         </Button>
@@ -80,10 +90,10 @@ export default function ModernHeader({
                     {/* Branding and Conversation Title */}
                     <div className="flex-1 flex items-center justify-center md:justify-start">
                         <a href="/" className="flex items-center">
-                            <span className="font-bold text-xl md:text-2xl text-primary mr-4">JasGigli AI</span>
+                            <span className={`font-bold text-xl md:text-2xl text-primary mr-4`}>JasGigli AI</span>
                         </a>
                         {currentConversation && (
-                            <span className="text-gray-500 dark:text-gray-400 text-sm truncate max-w-[200px] sm:max-w-[300px] md:max-w-[400px]" title={currentConversation.title}>
+                            <span className={`text-sm truncate max-w-[200px] sm:max-w-[300px] md:max-w-[400px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} title={currentConversation.title}>
                                 {currentConversation.title}
                             </span>
                         )}
@@ -91,7 +101,7 @@ export default function ModernHeader({
 
                     {/* Right Side Controls - No Theme Toggle Button */}
                     <nav className="hidden md:flex items-center space-x-2 lg:space-x-4">
-                        
+                       
 
 
                         {/* User Dropdown Button */}
@@ -101,23 +111,23 @@ export default function ModernHeader({
                                 size="icon"
                                 onClick={toggleDropdown}
                                 aria-label="User Menu"
-                                className={`text-gray-500 hover:text-gray-700 ${isDropdownOpen ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+                                className={`hover:text-gray-700 ${darkMode ? 'text-white hover:text-gray-300' : 'text-gray-500'} ${isDropdownOpen ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
                             >
                                 <User className="h-5 w-5" />
                             </Button>
                             <AnimatePresence>
                                 {isDropdownOpen && (
                                     <motion.div
-                                        className="absolute right-0 top-full mt-3 w-64 origin-top-right rounded-xl shadow-xl ring-1 ring-gray-900 ring-opacity-5 focus:outline-none" // More prominent shadow and rounded corners
-                                        initial={{ opacity: 0, y: -15, scale: 0.95 }} // Increased initial y offset
+                                        className="absolute right-0 top-full mt-3 w-64 origin-top-right rounded-xl shadow-xl ring-1 ring-gray-900 ring-opacity-5 focus:outline-none"
+                                        initial={{ opacity: 0, y: -15, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                                        transition={{ duration: 0.2, ease: "easeOut" }} // Slightly slower transition
-                                        style={{ backgroundColor: colors.backgroundSecondary, border: `1px solid ${colors.borderSecondary}` }}
+                                        transition={{ duration: 0.2, ease: "easeOut" }}
+                                        style={{ backgroundColor: colors?.backgroundSecondary, border: `1px solid ${colors?.borderSecondary}` }}
                                         role="menu" aria-orientation="vertical" aria-labelledby="user-button" tabIndex="-1"
                                     >
-                                        <div className="py-2" role="none"> {/* Increased vertical padding */}
-                                            <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400"> {/* Dropdown header */}
+                                        <div className="py-2" role="none">
+                                            <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
                                                 User Options
                                             </div>
                                             {isLoggedIn && (
@@ -127,7 +137,7 @@ export default function ModernHeader({
                                                         label="Settings"
                                                         onClick={() => setShowSettings(true)}
                                                     />
-                                                    <div className="border-t border-gray-200 dark:border-gray-700 my-2 mx-3" /> {/* Separator with margin */}
+                                                    <div className="border-t border-gray-200 dark:border-gray-700 my-2 mx-3" />
                                                 </>
                                             )}
                                             <DropdownItem
@@ -140,7 +150,7 @@ export default function ModernHeader({
                                                 label="About"
                                                 onClick={handleAboutAction}
                                             />
-                                            <div className="border-t border-gray-200 dark:border-gray-700 my-2 mx-3" /> {/* Separator with margin */}
+                                            <div className="border-t border-gray-200 dark:border-gray-700 my-2 mx-3" />
                                             <DropdownItem
                                                 icon={isLoggedIn ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
                                                 label={isLoggedIn ? 'Sign Out' : 'Sign In'}
@@ -165,10 +175,10 @@ const DropdownItem = ({ icon, label, onClick, accent = false }) => (
         variant="ghost"
         size="sm"
         onClick={onClick}
-        className={`w-full flex justify-start rounded-md px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${accent ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : ''}`} // Added px-4 py-2 for padding
+        className={`w-full flex justify-start rounded-md px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-300 ${accent ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : ''} text-${useTheme().darkMode ? 'white' : 'gray-700'}`}
         role="menuitem"
     >
-        <span className="mr-3">{icon}</span> {/* Increased icon margin */}
-        {label}
+        <span className="mr-3 text-gray-500 dark:text-gray-400">{icon}</span>
+        <span className={`${useTheme().darkMode ? 'text-white' : 'text-gray-700'}`}>{label}</span>
     </Button>
 );

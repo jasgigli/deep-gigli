@@ -1,3 +1,5 @@
+"use client";
+
 // components/ui/Dropdown.jsx
 import React from 'react';
 

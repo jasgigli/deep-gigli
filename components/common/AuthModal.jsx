@@ -1,3 +1,4 @@
+"use client";
 // components/common/AuthModal.jsx
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button'; // Assuming Button component is in "@/components/ui"

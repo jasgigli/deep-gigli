@@ -1,3 +1,4 @@
+"use client";
 // app/chat/components/ChatInputToolbar.jsx
 import React from "react";
 import { FileText, Search, Globe, Smile } from "lucide-react";
