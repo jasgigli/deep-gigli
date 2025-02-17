@@ -1,3 +1,5 @@
+"use client";
+
 // app/settings/page.js
 import SettingsModal from '@/components/common/SettingsModal'; // Assuming SettingsModal is in "@/components/common"
 import { useRouter } from 'next/navigation';
