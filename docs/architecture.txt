@@ -43,7 +43,9 @@ jasgigli-ai/
 │   │       └── index.js
 │   ├── loading.js
 │   └── styles/
-│       └── layout.css       
+│   |  └── layout.css       
+|   |---contexts/
+│   └── ThemeContext.js 
 ├── components/
 │   ├── ui/
 │   │   ├── Button.jsx
@@ -60,17 +62,12 @@ jasgigli-ai/
 ├── styles/
 │   ├── critical.css
 │   ├── css-variables.css
-│   └── globals.css
 ├── public/
-│   ├── images/
-│   └── fonts/
-├── hooks/
-│   └── useLocalStorage.js  
-├── contexts/
-│   └── ThemeContext.js     
+│   ├── favicon.ico     
 ├── docs/                 
-│   └── architecture.md
+│   └── architecture.txt
 ├── .env.local
 ├── next.config.js
+├── tailwind.config.js
 ├── package.json
 ├── README.md
