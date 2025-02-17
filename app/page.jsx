@@ -291,12 +291,12 @@ export default function Home() {
                 <main className={`flex-1 flex flex-col relative ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
                     {/* Header */}
                     <Header
-                        saveConversation={saveConversation}
-                        exportConversation={exportConversation}
-                        regenerateResponse={regenerateResponse}
-                        settings={settings}
-                        isMobileSidebarOpen={isMobileSidebarOpen}
+
+                        setShowSettings={setShowSettingsModal}
                         setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+                        isMobileSidebarOpen={isMobileSidebarOpen}
+                        settings={settings}
+                        
                     />
 
                     {/* Tool Selector */}

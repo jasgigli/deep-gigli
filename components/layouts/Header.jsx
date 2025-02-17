@@ -5,11 +5,12 @@ import {
     RefreshCw, Save, Download, Menu, User, Settings, LogOut, LogIn, HelpCircle, Info
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useTheme } from "@/app/context/ThemeContext.js";   
+import { useTheme } from "@/app/context/ThemeContext.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from 'next/navigation';
+// import AuthModal from "@/components/common/AuthModal"; // Removed AuthModal import
 
-export default function ModernHeader({
+export default function Header({
     saveConversation,
     exportConversation,
     regenerateResponse,
@@ -24,6 +25,7 @@ export default function ModernHeader({
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const router = useRouter();
+    // const [showAuthModal, setShowAuthModal] = useState(false); // Removed AuthModal state
 
     const toggleDropdown = () => setIsDropdownOpen(prev => !prev);
 
@@ -38,10 +40,8 @@ export default function ModernHeader({
     }, []);
 
     const handleAuthAction = () => {
-        const action = isLoggedIn ? 'logout' : 'login';
-        alert(`${action} action (replace with actual logic)`);
         setIsDropdownOpen(false);
-        // router.push(isLoggedIn ? '/' : '/signin');
+        router.push('/auth/login'); // Redirect to /auth/login page
     };
 
     const handleHelpAction = () => {
@@ -81,7 +81,7 @@ export default function ModernHeader({
                             size="icon"
                             onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
                             aria-label="Toggle sidebar"
-                            className={`hover:text-gray-700 ${darkMode ? 'text-white hover:text-black' : 'text-gray-500'}`}
+                            className={`hover:text-gray-700 ${darkMode ? 'text-white hover:text-gray-300' : 'text-gray-500'}`}
                         >
                             <Menu className="h-6 w-6" />
                         </Button>
@@ -101,7 +101,6 @@ export default function ModernHeader({
 
                     {/* Right Side Controls - No Theme Toggle Button */}
                     <nav className="hidden md:flex items-center space-x-2 lg:space-x-4">
-                       
 
 
                         {/* User Dropdown Button */}
@@ -152,10 +151,10 @@ export default function ModernHeader({
                                             />
                                             <div className="border-t border-gray-200 dark:border-gray-700 my-2 mx-3" />
                                             <DropdownItem
-                                                icon={isLoggedIn ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-                                                label={isLoggedIn ? 'Sign Out' : 'Sign In'}
-                                                onClick={handleAuthAction}
-                                                accent={isLoggedIn}
+                                                icon={<LogIn className="h-4 w-4" />}
+                                                label={'Sign In'}
+                                                onClick={handleAuthAction} // handleAuthAction now redirects
+                                                accent={false}
                                             />
                                         </div>
                                     </motion.div>
@@ -165,6 +164,7 @@ export default function ModernHeader({
                     </nav>
                 </div>
             </div>
+            {/* AuthModal component removed */}
         </header>
     );
 }

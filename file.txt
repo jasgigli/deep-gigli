@@ -1,6 +1,7 @@
 jasgigli-ai/
 ├── app/
 │   ├── layout.js         
+│   ├── global.css        
 │   ├── page.js          
 │   ├── chat/
 │   │   ├── components/
@@ -30,6 +31,8 @@ jasgigli-ai/
 │   │   ├── login/
 │   │   │   └── page.js
 │   │   └── signup/
+│   │   |   └── page.js
+│   │   └── forgot-password/
 │   │       └── page.js
 │   ├── lib/                
 │   │   ├── api/           
