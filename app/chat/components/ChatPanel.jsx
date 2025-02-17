@@ -1,23 +1,22 @@
 "use client";
-// app/chat/components/ChatPanel.jsx
+
 import React from "react";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
-import ChatInputToolbar from "./ChatInputToolbar"; // Import toolbar
 import { useTheme } from "../../context/ThemeContext.js";
 
 export default function ChatPanel({
-    messages,
-    settings,
-    formatTimestamp,
-    copyToClipboard,
-    isTyping,
-    input,
-    setInput,
-    handleKeyDown,
-    sendMessage,
-    isLoading,
-    textareaRef,
+    messages = [],
+    settings = { showTimestamp: false, enableMarkdown: false },
+    formatTimestamp = (ts) => ts,
+    copyToClipboard = () => { },
+    isTyping = false,
+    input = "",
+    setInput = () => { },
+    handleKeyDown = () => { },
+    sendMessage = () => { },
+    isLoading = false,
+    textareaRef = null,
 }) {
     const { isDarkMode } = useTheme(); // Use ThemeContext for styling
 
@@ -32,8 +31,6 @@ export default function ChatPanel({
             />
             {/* Chat Input Area */}
             <div className="sticky bottom-0 bg-inherit border-t border-gray-200 dark:border-[#40414F] dark:bg-[#343541]">
-                {/*  You can add ChatInputToolbar here if you want to include extra actions above the input */}
-                {/* <ChatInputToolbar isDarkMode={isDarkMode} /> */}
                 <ChatInput
                     input={input}
                     setInput={setInput}

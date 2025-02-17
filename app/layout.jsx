@@ -37,8 +37,8 @@ export const metadata = {
             maxVideoPreview: -1,
         },
     },
-    // Optional: If you want to set a theme color for browsers
-    themeColor: '#64B5F6', // Example primary color of your light theme
+
+    
     icons: {
         icon: '/favicon.ico', // Path to your favicon
         // apple: '/apple-icon.png', // Path to apple-touch-icon.png if you have one

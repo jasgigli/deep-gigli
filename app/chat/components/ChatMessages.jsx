@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { useTheme } from "../../context/ThemeContext.js";
 
 export default function ChatMessages({
-    messages,
+    messages = [], // Provide a default empty array here
     settings,
     formatTimestamp,
     copyToClipboard,

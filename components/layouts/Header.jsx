@@ -9,8 +9,7 @@ import { useTheme } from "@/app/context/ThemeContext.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from 'next/navigation';
 
-// import AuthModal from "@/components/common/AuthModal"; // Removed AuthModal import
-const currentVersion = "0.1.0";
+
 export default function Header({
     saveConversation,
     exportConversation,
@@ -105,9 +104,7 @@ export default function Header({
                     {/* Right Side Controls - No Theme Toggle Button */}
                     <nav className="hidden md:flex items-center space-x-2 lg:space-x-4">
 
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer">
-    Version: <span class="text-blue-500 font-semibold">{currentVersion}</span>
-</p>
+                
 
 
                         {/* User Dropdown Button */}
