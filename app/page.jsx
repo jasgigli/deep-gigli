@@ -1,362 +1,352 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
 import Head from "next/head";
-import axios from "axios";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
 // Import Components
-import Sidebar from "@/components/layouts/Sidebar";
-import Header from "@/components/layouts/Header";
-import ChatPanel from "@/app/chat/components/ChatPanel";
-import SummarizePanel from "@/app/summarize/components/SummarizePanel";
-import TranslatePanel from "@/app/translate/components/TranslatePanel";
-import SettingsModal from "@/components/common/SettingModal"
-import ToolSelector from "@/components/common/ToolSelector";
-import { useTheme } from "./context/ThemeContext.js"
+import ChatPanel from "@/app/_components/ChatPanel";
+import SettingsModal from "@/app/_components/common/SettingModal";
+import ToolSelector from "@/app/_components/common/ToolSelector";
+import Header from "@/app/_components/layouts/Header";
+import Sidebar from "@/app/_components/layouts/Sidebar";
+import SummarizePanel from "@/app/_components/SummarizePanel";
+import TranslatePanel from "@/app/_components/TranslatePanel";
+import { useTheme } from "@/context/ThemeContext";
 
-export default function Home() {
-    // --- State Management ---
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [isTyping, setIsTyping] = useState(false);
-    const [conversations, setConversations] = useState([]);
-    const [currentConversation, setCurrentConversation] = useState(null);
-    const [settings, setSettings] = useState({ // Default settings
-        model: "gemini-1.5-flash",
-        temperature: 0.7,
-        maxTokens: 1024,
-        showTimestamp: true,
-        enableMarkdown: true,
-    });
-    const [showSettingsModal, setShowSettingsModal] = useState(false);
-    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const [summaryResult, setSummaryResult] = useState("");
-    const [translationResult, setTranslationResult] = useState("");
-    const [targetLanguage, setTargetLanguage] = useState("");
-    const [selectedTool, setSelectedTool] = useState("chat"); // Default tool is chat
+export default function HomePage() {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [settings, setSettings] = useState({
+    model: "gemini-1.5-flash",
+    temperature: 0.7,
+    maxTokens: 1024,
+    showTimestamp: true,
+    enableMarkdown: true,
+  });
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [summaryResult, setSummaryResult] = useState("");
+  const [translationResult, setTranslationResult] = useState("");
+  const [targetLanguage, setTargetLanguage] = useState("");
+  const [selectedTool, setSelectedTool] = useState("chat");
 
-    const textareaRef = useRef(null);
+  const textareaRef = useRef(null);
+  const { theme } = useTheme();
+  const isDarkMode = theme?.darkMode || false;
 
-    // --- Theme Context ---
-    const { isDarkMode, toggleDarkMode } = useTheme(); // Use ThemeContext
+  useEffect(() => {
+    const savedSettings = localStorage.getItem("settings");
+    if (savedSettings) {
+      setSettings(JSON.parse(savedSettings));
+    }
+  }, []);
 
-    // --- Load and Save Settings/Conversations ---
-    useEffect(() => {
-        // Load settings from local storage
-        const savedSettings = localStorage.getItem("settings");
-        if (savedSettings) {
-            setSettings(JSON.parse(savedSettings));
-        }
-        // Load conversations from local storage
-        const savedConversations = localStorage.getItem("conversations");
-        if (savedConversations) {
-            setConversations(JSON.parse(savedConversations));
-        }
-    }, []);
+  useEffect(() => {
+    localStorage.setItem("settings", JSON.stringify(settings));
+  }, [settings]);
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "0px";
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = Math.min(scrollHeight, 200) + "px";
+    }
+  }, [input]);
 
-    useEffect(() => {
-        localStorage.setItem("settings", JSON.stringify(settings));
-    }, [settings]);
+  const copyToClipboard = useCallback((text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!");
+  }, []);
 
-    useEffect(() => {
-        localStorage.setItem("conversations", JSON.stringify(conversations));
-    }, [conversations]);
-
-
-    // --- Auto-resize Textarea ---
-    useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = "0px";
-            const scrollHeight = textareaRef.current.scrollHeight;
-            textareaRef.current.style.height = Math.min(scrollHeight, 200) + "px";
-        }
-    }, [input]);
-
-    // --- Conversation Management Handlers ---
-    const createNewConversation = () => {
-        const newConversation = {
-            id: Date.now(),
-            title: "New Chat",
-            messages: [],
-            timestamp: new Date().toISOString(),
-        };
-        setConversations([newConversation, ...conversations]);
-        setCurrentConversation(newConversation);
-        setMessages([]);
-        setSelectedTool("chat"); // Reset tool to chat when creating new conversation
+  const sendMessage = useCallback(async () => {
+    if (!input.trim() || isLoading) return;
+    setIsLoading(true);
+    const currentMessage = input.trim();
+    const userMessage = {
+      text: currentMessage,
+      sender: "user",
+      timestamp: new Date().toISOString(),
     };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInput("");
+    setIsTyping(true);
 
-    const saveConversation = () => {
-        if (currentConversation) {
-            const updatedConversations = conversations.map((conv) =>
-                conv.id === currentConversation.id
-                    ? { ...conv, messages, timestamp: new Date().toISOString() }
-                    : conv
-            );
-            setConversations(updatedConversations);
-            toast.success("Conversation saved!");
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: currentMessage, settings }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let aiFullResponse = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          setIsTyping(false);
+          break;
         }
-    };
+        aiFullResponse += decoder.decode(value);
 
-    const deleteConversation = (id) => {
-        setConversations(conversations.filter((conv) => conv.id !== id));
-        if (currentConversation?.id === id) {
-            setCurrentConversation(null);
-            setMessages([]);
-        }
-        toast.success("Conversation deleted");
-    };
-
-    const exportConversation = () => {
-        const conversationData = { messages, settings, timestamp: new Date().toISOString() };
-        const blob = new Blob([JSON.stringify(conversationData, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `chat-export-${new Date().toISOString()}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        toast.success("Conversation exported!");
-    };
-
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
-        toast.success("Copied to clipboard!");
-    };
-
-    const regenerateResponse = async () => {
-        if (messages.length === 0) return;
-        const lastUserMessage = messages.slice().reverse().find((msg) => msg.sender === "user");
-        if (lastUserMessage) {
-            setIsLoading(true);
-            setIsTyping(true);
-            try {
-                const { data } = await axios.post("/api/chat", { message: lastUserMessage.text, settings });
-                setMessages((prev) => {
-                    const newMessages = [...prev];
-                    const lastAiIndex = newMessages.slice().reverse().findIndex((msg) => msg.sender === "ai");
-                    if (lastAiIndex !== -1) {
-                        const index = newMessages.length - 1 - lastAiIndex;
-                        newMessages[index] = {
-                            text: data.reply,
-                            sender: "ai",
-                            timestamp: new Date().toISOString(),
-                        };
-                    } else {
-                        newMessages.push({
-                            text: data.reply,
-                            sender: "ai",
-                            timestamp: new Date().toISOString(),
-                        });
-                    }
-                    return newMessages;
-                });
-            } catch (error) {
-                toast.error("Failed to regenerate response");
-            } finally {
-                setIsLoading(false);
-                setIsTyping(false);
-            }
-        }
-    };
-
-    const sendMessage = async () => {
-        if (!input.trim() || isLoading) return;
-        setIsLoading(true);
-        const currentMessage = input.trim();
-        const userMessage = {
-            text: currentMessage,
-            sender: "user",
-            timestamp: new Date().toISOString(),
-        };
-        setMessages((prev) => [...prev, userMessage]);
-        setInput("");
-        setIsTyping(true);
-        try {
-            const { data } = await axios.post("/api/chat", { message: currentMessage, settings });
-            const aiMessage = {
-                text: data.reply,
+        setMessages((prevMessages) => {
+          const lastMessage = prevMessages[prevMessages.length - 1];
+          if (
+            lastMessage &&
+            lastMessage.sender === "ai" &&
+            lastMessage.isStreaming
+          ) {
+            return [
+              ...prevMessages.slice(0, prevMessages.length - 1),
+              {
+                ...lastMessage,
+                text: lastMessage.text + decoder.decode(value),
+              },
+            ];
+          } else {
+            return [
+              ...prevMessages,
+              {
+                text: decoder.decode(value),
                 sender: "ai",
                 timestamp: new Date().toISOString(),
-            };
-            setMessages((prev) => [...prev, aiMessage]);
-            if (messages.length === 0 && currentConversation) {
-                const updatedConversation = {
-                    ...currentConversation,
-                    title: currentMessage.slice(0, 30) + (currentMessage.length > 30 ? "..." : ""),
-                };
-                setCurrentConversation(updatedConversation);
-                setConversations(
-                    conversations.map((conv) =>
-                        conv.id === updatedConversation.id ? updatedConversation : conv
-                    )
-                );
-            }
-        } catch (error) {
-            const errorMessage = {
-                text: "An error occurred. Please try again.",
-                sender: "ai",
-                error: true,
-                timestamp: new Date().toISOString(),
-            };
-            setMessages((prev) => [...prev, errorMessage]);
-            toast.error("Failed to send message");
-        } finally {
-            setIsLoading(false);
-            setIsTyping(false);
+                isStreaming: true,
+              },
+            ];
+          }
+        });
+      }
+
+      setMessages((prevMessages) => {
+        const lastMessage = prevMessages[prevMessages.length - 1];
+        if (lastMessage && lastMessage.sender === "ai") {
+          return [
+            ...prevMessages.slice(0, prevMessages.length - 1),
+            { ...lastMessage, isStreaming: false },
+          ];
         }
-    };
+        return prevMessages;
+      });
+    } catch (error) {
+      setIsTyping(false);
+      const errorMessage = {
+        text: "An error occurred. Please try again.",
+        sender: "ai",
+        error: true,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      console.error("Send message error:", error);
+      toast.error("Failed to send message: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    input,
+    isLoading,
+    messages,
+    settings,
+    setMessages,
+    setInput,
+    setIsLoading,
+    setIsTyping,
+  ]);
 
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    };
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    },
+    [sendMessage]
+  );
 
-    const formatTimestamp = (timestamp) => new Date(timestamp).toLocaleTimeString();
+  const formatTimestamp = useCallback(
+    (timestamp) => new Date(timestamp).toLocaleTimeString(),
+    []
+  );
 
-    // --- Tool Specific Functions ---
-    const summarizeConversation = async () => {
-        if (messages.length === 0) {
-            toast.error("No conversation to summarize.");
-            return;
-        }
-        setIsLoading(true);
-        try {
-            const { data } = await axios.post("/api/summarize", { messages });
-            setSummaryResult(data.summary);
-            toast.success("Conversation summarized!");
-        } catch (error) {
-            toast.error("Failed to summarize conversation");
-            console.error("Summarize error:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const summarizeConversation = useCallback(async () => {
+    if (messages.length === 0) {
+      toast.error("No conversation to summarize.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/summarize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
+      }
+      const data = await response.json();
+      setSummaryResult(data.summary);
+      setSelectedTool("summarize"); // Switch to summarize tool
+      toast.success("Conversation summarized!");
+    } catch (error) {
+      console.error("Summarize error:", error);
+      toast.error("Failed to summarize conversation");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [messages, setSelectedTool]);
 
-    const translateConversation = async () => {
-        if (!targetLanguage) {
-            toast.error("Please enter a target language.");
-            return;
-        }
-        if (messages.length === 0) {
-            toast.error("No conversation to translate.");
-            return;
-        }
-        setIsLoading(true);
-        try {
-            const fullText = messages.map((msg) => msg.text).join("\n"); // Join messages with newlines
-            const { data } = await axios.post("/api/translate", { text: fullText, targetLanguage });
-            setTranslationResult(data.translation);
-            toast.success("Conversation translated!");
-        } catch (error) {
-            toast.error("Failed to translate conversation");
-            console.error("Translation error:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const translateConversation = useCallback(async () => {
+    if (!targetLanguage) {
+      toast.error("Please enter a target language.");
+      return;
+    }
+    if (messages.length === 0) {
+      toast.error("No conversation to translate.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const fullText = messages.map((msg) => msg.text).join("\n");
+      const response = await fetch("/api/translate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: fullText, targetLanguage }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
+      }
+      const data = await response.json();
+      setTranslationResult(data.translation);
+      setSelectedTool("translate"); // Switch to translate tool
+      toast.success("Conversation translated!");
+    } catch (error) {
+      console.error("Translation error:", error);
+      toast.error("Failed to translate conversation");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [messages, targetLanguage, setSelectedTool]);
 
+  return (
+    <>
+      <Head>
+        <title>JasGigli AI - Free AI Chat</title>
+        <meta
+          name="description"
+          content="Start chatting with AI for free with JasGigli AI."
+        />
+      </Head>
 
-    return (
-        <>
-            <Head>
-                <title>JasGigli AI - Super AI Agent</title>
-                <meta name="description" content="Your powerful AI agent for chat, summarization, and translation." />
-            </Head>
+      <div
+        className={`flex h-screen overflow-hidden ${isDarkMode ? "dark" : ""}`}
+      >
+        <Sidebar
+          conversations={[]} // No conversations in no-auth mode
+          currentConversation={null}
+          setCurrentConversation={() => {}} // No conversation selection
+          createNewConversation={() => {}} // No new conversation creation
+          deleteConversation={() => {}} // No deleting conversations
+          setShowSettings={setShowSettingsModal}
+          isMobileSidebarOpen={isMobileSidebarOpen}
+          setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+          selectedTool={selectedTool}
+          setSelectedTool={setSelectedTool}
+          setConversations={() => {}} // No conversation setting
+        />
 
-            <div className={`flex h-screen overflow-hidden ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
-                {/* Sidebar */}
-                <Sidebar
-                    conversations={conversations}
-                    currentConversation={currentConversation}
-                    setCurrentConversation={(conv) => { setCurrentConversation(conv); setMessages(conv.messages); setIsMobileSidebarOpen(false); }}
-                    createNewConversation={createNewConversation}
-                    deleteConversation={deleteConversation}
-                    setShowSettings={setShowSettingsModal}
-                    isMobileSidebarOpen={isMobileSidebarOpen}
-                    setIsMobileSidebarOpen={setIsMobileSidebarOpen}
-                    selectedTool={selectedTool}
-                    setSelectedTool={setSelectedTool}
-                    setConversations={setConversations} // Pass setConversations
-                />
+        <main
+          className={`flex-1 flex flex-col relative ${
+            isDarkMode ? "dark:bg-gray-800 bg-gray-100" : "bg-gray-100"
+          }`}
+        >
+          <Header
+            setShowSettings={setShowSettingsModal}
+            setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+            isMobileSidebarOpen={isMobileSidebarOpen}
+            settings={settings}
+            currentConversation={null} // No current conversation
+          />
 
-                {/* Main Content */}
-                {/* Main Content */}
-                <main className={`flex-1 flex flex-col relative ${isDarkMode ? "bg-gray-800" : "bg-gray-100"}`}>
+          <div className="px-4 pt-2">
+            <ToolSelector
+              selectedTool={selectedTool}
+              setSelectedTool={setSelectedTool}
+            />
+          </div>
 
-                    {/* Header */}
-                    <Header
+          <div className="flex-1 overflow-auto">
+            {selectedTool === "chat" && (
+              <ChatPanel
+                messages={messages}
+                setMessages={setMessages}
+                settings={settings}
+                formatTimestamp={formatTimestamp}
+                copyToClipboard={copyToClipboard}
+                isTyping={isTyping}
+                setIsTyping={setIsTyping}
+                input={input}
+                setInput={setInput}
+                handleKeyDown={handleKeyDown}
+                sendMessage={sendMessage}
+                isLoading={isLoading}
+                textareaRef={textareaRef}
+              />
+            )}
 
-                        setShowSettings={setShowSettingsModal}
-                        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
-                        isMobileSidebarOpen={isMobileSidebarOpen}
-                        settings={settings}
+            {selectedTool === "summarize" && (
+              <SummarizePanel
+                summarizeConversation={summarizeConversation}
+                summaryResult={summaryResult}
+                isLoading={isLoading}
+                setSummaryResult={setSummaryResult}
+                setIsLoading={setIsLoading}
+              />
+            )}
 
-                    />
+            {selectedTool === "translate" && (
+              <TranslatePanel
+                targetLanguage={targetLanguage}
+                setTargetLanguage={setTargetLanguage}
+                translateConversation={translateConversation}
+                translationResult={translationResult}
+                isLoading={isLoading}
+                setTranslationResult={setTranslationResult}
+                setIsLoading={setIsLoading}
+              />
+            )}
+          </div>
 
-                    {/* Tool Selector */}
-                    <div className="px-4 pt-2">
-                        <ToolSelector
-                            selectedTool={selectedTool}
-                            setSelectedTool={setSelectedTool}
-                        />
-                    </div>
-
-
-                    {/* Panel Area */}
-                    <div className="flex-1 overflow-auto">
-                        {selectedTool === "chat" && (
-                            <ChatPanel
-                                messages={messages}
-                                settings={settings}
-                                formatTimestamp={formatTimestamp}
-                                copyToClipboard={copyToClipboard}
-                                isTyping={isTyping}
-                                input={input}
-                                setInput={setInput}
-                                handleKeyDown={handleKeyDown}
-                                sendMessage={sendMessage}
-                                isLoading={isLoading}
-                                textareaRef={textareaRef}
-                            />
-                        )}
-
-                        {selectedTool === "summarize" && (
-                            <SummarizePanel
-                                summarizeConversation={summarizeConversation}
-                                summaryResult={summaryResult}
-                                isLoading={isLoading} // Pass isLoading state
-                            />
-                        )}
-
-                        {selectedTool === "translate" && (
-                            <TranslatePanel
-                                targetLanguage={targetLanguage}
-                                setTargetLanguage={setTargetLanguage}
-                                translateConversation={translateConversation}
-                                translationResult={translationResult}
-                                isLoading={isLoading} // Pass isLoading state
-                            />
-                        )}
-                    </div>
-
-                    {/* Settings Modal */}
-                    {showSettingsModal && (
-                        <SettingsModal
-                            settings={settings}
-                            setSettings={setSettings}
-                            setShowSettings={setShowSettingsModal}
-                        />
-                    )}
-                </main>
-            </div>
-        </>
-    );
+          {showSettingsModal && (
+            <SettingsModal
+              settings={settings}
+              setSettings={setSettings}
+              setShowSettings={setShowSettingsModal}
+            />
+          )}
+        </main>
+      </div>
+    </>
+  );
 }

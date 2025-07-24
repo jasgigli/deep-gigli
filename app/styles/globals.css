@@ -1,0 +1,339 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ChatGPT Design System CSS Variables */
+:root {
+  /* These will be set dynamically by ThemeContext */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  html {
+    font-family: "Söhne", "ui-sans-serif", "system-ui", "-apple-system",
+      "Segoe UI", "Roboto", "Ubuntu", "Cantarell", "Noto Sans", sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+      "Noto Color Emoji";
+    font-feature-settings: "rlig" 1, "calt" 0;
+    background-color: rgb(var(--color-background-primary));
+    color: rgb(var(--color-text-primary));
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: rgb(var(--color-background-primary));
+    color: rgb(var(--color-text-primary));
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  /* ChatGPT Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
+    color: rgb(var(--color-text-primary));
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
+  h4 {
+    font-size: 1.125rem;
+  }
+  h5 {
+    font-size: 1rem;
+  }
+  h6 {
+    font-size: 0.875rem;
+  }
+
+  /* ChatGPT Link Styles */
+  a {
+    color: rgb(var(--color-primary));
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  a:hover {
+    color: rgb(var(--color-primary-hover));
+    text-decoration: underline;
+  }
+
+  /* ChatGPT Form Elements */
+  input,
+  textarea,
+  select {
+    background-color: rgb(var(--color-input-background));
+    border: 1px solid rgb(var(--color-input-border));
+    border-radius: 0.375rem;
+    color: rgb(var(--color-text-primary));
+    font-size: 0.875rem;
+    padding: 0.75rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: rgb(var(--color-input-focus));
+    box-shadow: 0 0 0 1px rgb(var(--color-input-focus));
+  }
+
+  button {
+    background-color: rgb(var(--color-primary));
+    border: none;
+    border-radius: 0.375rem;
+    color: white;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.2s ease;
+    outline: none;
+  }
+
+  button:hover:not(:disabled) {
+    background-color: rgb(var(--color-primary-hover));
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ChatGPT List Styles */
+  ul,
+  ol {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  li {
+    margin: 0.25rem 0;
+  }
+
+  /* ChatGPT Code Styles */
+  code {
+    background-color: rgb(var(--color-background-accent));
+    border-radius: 0.25rem;
+    font-family: "Söhne Mono", Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+    font-size: 0.875em;
+    padding: 0.125rem 0.25rem;
+  }
+
+  pre {
+    background-color: rgb(var(--color-background-accent));
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    padding: 1rem;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+  }
+}
+
+@layer components {
+  /* ChatGPT Container */
+  .container {
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* ChatGPT Card Component */
+  .card {
+    background-color: rgb(var(--color-background-secondary));
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  /* ChatGPT Button Styles */
+  .btn {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background-color: rgb(var(--color-primary));
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: rgb(var(--color-primary-hover));
+  }
+
+  .btn-secondary {
+    background-color: rgb(var(--color-background-secondary));
+    color: rgb(var(--color-text-primary));
+    border: 1px solid rgb(var(--color-border-primary));
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: rgb(var(--color-background-accent));
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    color: rgb(var(--color-text-secondary));
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    background-color: rgb(var(--color-background-accent));
+    color: rgb(var(--color-text-primary));
+  }
+
+  /* ChatGPT Sidebar Styles */
+  .sidebar {
+    background-color: rgb(var(--color-sidebar-background));
+    color: rgb(var(--color-sidebar-text));
+    width: 260px;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 0.375rem;
+    margin: 0.125rem 0.5rem;
+  }
+
+  .sidebar-item:hover {
+    background-color: rgb(var(--color-sidebar-hover));
+  }
+
+  /* ChatGPT Message Styles */
+  .message-user {
+    background-color: rgb(var(--color-message-user));
+  }
+
+  .message-assistant {
+    background-color: rgb(var(--color-message-assistant));
+  }
+
+  /* ChatGPT Input Styles */
+  .chat-input {
+    background-color: rgb(var(--color-input-background));
+    border: 1px solid rgb(var(--color-input-border));
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .chat-input:focus {
+    border-color: rgb(var(--color-input-focus));
+    box-shadow: 0 0 0 1px rgb(var(--color-input-focus));
+  }
+
+  .send-button {
+    background-color: rgb(var(--color-border-primary));
+    border: none;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .send-button.enabled {
+    background-color: rgb(var(--color-primary));
+  }
+
+  .send-button.enabled:hover {
+    background-color: rgb(var(--color-primary-hover));
+  }
+}
+
+@layer utilities {
+  .text-accent-theme {
+    color: rgb(var(--color-accent));
+  }
+
+  .bg-sidebar {
+    background-color: rgb(var(--color-sidebar-background));
+  }
+
+  .bg-main {
+    background-color: rgb(var(--color-main-background));
+  }
+
+  .text-primary {
+    color: rgb(var(--color-text-primary));
+  }
+
+  .text-secondary {
+    color: rgb(var(--color-text-secondary));
+  }
+
+  .border-primary {
+    border-color: rgb(var(--color-border-primary));
+  }
+}
+
+/* ChatGPT Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 0.375rem;
+  height: 0.375rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--color-border-primary));
+  border-radius: 0.375rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--color-border-secondary));
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgb(var(--color-background-accent));
+}
+
+::-webkit-scrollbar-corner {
+  background-color: rgb(var(--color-background-accent));
+}

@@ -1,7 +1,7 @@
 "use client"; // Ensure this is a client component
 
 import React from "react";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon } from "lucide-react";
 import Link from "next/link";
 

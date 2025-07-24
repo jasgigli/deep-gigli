@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Button } from '@/app/_components/ui/Button';
+import { Input } from '@/app/_components/ui/Input';
 import Link from 'next/link';
-import { useTheme } from '@/app/context/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 import { Moon, Sun } from 'lucide-react';
 
 // Fallback Colors using full palettes from ThemeContext

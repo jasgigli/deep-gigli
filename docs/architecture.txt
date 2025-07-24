@@ -1,72 +1,103 @@
 jasgigli-ai/
 ├── app/
-│   ├── layout.js         
-│   ├── global.css        
-│   ├── page.js          
-│   ├── chat/
-│   │   ├── components/
-│   │   │   ├── ChatInput.jsx
-│   │   │   ├── ChatMessages.jsx
-│   │   │   └── ChatPanel.jsx
-│   │   └── page.js       
-│   ├── summarize/
-│   │   ├── components/
-│   │   │   └── SummarizePanel.jsx
-│   │   └── page.js       
-│   ├── translate/
-│   │   ├── components/
-│   │   │   └── TranslatePanel.jsx
-│   │   └── page.js      
-│   ├── settings/
-│   │   └── page.js       
-│   ├── api/
+│   ├── layout.js
+│   ├── page.js         <-- Home Page (Chat Interface)
+│   ├── loading.js
+│   ├── error.js
+│   ├── features/       <-- SEO Landing Pages for Features
+│   │   ├── summarize/
+│   │   │   └── page.js
+│   │   ├── translate/
+│   │   │   └── page.js
+│   │   ├── chat-agent/   <-- Example
+│   │   │   └── page.js
+│   │   └── layout.js     <-- Optional: Shared layout for feature pages
+│   ├── summarize/      <-- Summarize Tool Page (Publicly Accessible)
+│   │   └── page.js
+│   │   └── components/
+│   │       └── SummarizePanel.jsx
+│   ├── translate/      <-- Translate Tool Page (Publicly Accessible)
+│   │   └── page.js
+│   │   └── components/
+│   │       └── TranslatePanel.jsx
+│   ├── settings/       <-- Client-Side Settings Page (Publicly Accessible)
+│   │   └── page.js
+│   ├── api/            <-- API Route Handlers
 │   │   ├── chat/
 │   │   │   └── route.js
 │   │   ├── summarize/
 │   │   │   └── route.js
 │   │   └── translate/
-│   │   │   └── route.js
-│   ├── auth/              
-│   │   ├── login/
-│   │   │   └── page.js
-│   │   └── signup/
-│   │   |   └── page.js
-│   │   └── forgot-password/
-│   │       └── page.js
-│   ├── lib/                
-│   │   ├── api/           
-│   │   │   └── apiClient.js
-│   │   ├── utils/         
-│   │   │   └── helpers.js
-│   │   └── constants/     
-│   │       └── index.js
-│   ├── loading.js
-│   └── styles/
-│   |  └── layout.css       
-|   |---contexts/
-│   └── ThemeContext.js 
-├── components/
-│   ├── ui/
-│   │   ├── Button.jsx
-│   │   ├── Dropdown.jsx
-│   │   └── Input.jsx
-│   ├── layouts/
-│   │   ├── Header.jsx
-│   │   └── Sidebar.jsx
-│   ├── common/
-│   │   ├── AuthModal.jsx
-│   │   ├── SettingsModal.jsx
-│   │   ├── ToolSelector.jsx
-│   │   └── VoiceInputOutput.jsx
-├── styles/
-│   ├── critical.css
-│   ├── css-variables.css
-├── public/
-│   ├── favicon.ico     
-├── docs/                 
-│   └── architecture.txt
+│   ├── _components/    <-- Globally Shared App Components (Server Components Preferred)
+│   │   ├── ui/         <-- Reusable UI Primitives
+│   │   │   ├── Button.jsx
+│   │   │   ├── Dropdown.jsx
+│   │   │   └── Input.jsx
+│   │   ├── layouts/    <-- App Layout Parts
+│   │   │   ├── Header.jsx
+│   │   │   └── Sidebar.jsx
+│   │   ├── common/     <-- Cross-Feature Components
+│   │   │   ├── SettingsModal.jsx
+│   │   │   ├── ToolSelector.jsx
+│   │   │   └── VoiceInputOutput.jsx
+│   │   └── SEO/        <-- SEO Components
+│   │   │   ├── SEO.jsx         <-- Base SEO Component
+│   │   │   └── FeatureSEO/    <-- Feature-Specific SEO Components
+│   │   │       ├── SummarizeSEO.jsx
+│   │   │       └── TranslateSEO.jsx
+│   │   ├── ChatInput.jsx
+│   │   ├── ChatMessages.jsx
+│   │   └── ChatPanel.jsx
+│   └── _styles/       <-- App-Specific CSS Modules (Optional)
+│       └── globals.css
+├── components/         <-- Reusable Client Components (Project-Wide)
+│   ├── shared/        <-- Cross-Application Shared Components
+│   │   ├── Layout/    <-- Shared Layout Components
+│   │   │   └── Footer.js
+│   │   ├── ErrorBoundary/ <-- Shared Error Boundary
+│   │   │   └── ErrorBoundary.jsx
+
+├── contexts/         <-- Global React Contexts
+│   └── ThemeContext.js
+├── hooks/            <-- Custom React Hooks (Client-Side Logic)
+│   ├── useChat.js
+│   ├── useSummarize.js
+│   └── useTranslate.js
+├── services/         <-- Business Logic & Services
+│   ├── chatService.js
+│   ├── summarizeService.js
+│   └── translateService.js
+├── lib/              <-- Utility Libraries & Helpers
+│   ├── api/         <-- API Client Utilities
+│   │   ├── client.js
+│   │   └── server.js
+│   ├── ai/          <-- AI Service Integrations
+│   │   ├── openai.js   <-- Example
+│   │   └── transformers.js <-- Example
+│   ├── utils/       <-- General Utilities
+│   │   ├── validation.js
+│   │   ├── logger.js
+│   │   └── error.js
+├── types/            <-- TypeScript Type Definitions (if using TypeScript)
+├── public/           <-- Public Static Assets
+│   ├── robots.txt
+│   ├── sitemap.xml
+│   ├── images/
+│   │   └── logo.png
+│   ├── fonts/
+│   └── favicon.ico
+├── middleware.js     <-- Edge Middleware
+└── styles/           <-- Global Stylesheets
+    └── globals.css
+├── docs/             <-- Documentation
+│   ├── architecture.md
+│   ├── api-reference.md
+│   └── guides/
 ├── .env.local
-├── next.config.js
+├── .env.production
+├── next.config.mjs
+├── postcss.config.js
 ├── tailwind.config.js
 ├── package.json
 ├── README.md
+└── yarn.lock / package-lock.json
